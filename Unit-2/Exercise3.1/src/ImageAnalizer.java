@@ -4,7 +4,7 @@ public class ImageAnalizer {
 
     public static void main(String[] args) {
         try {
-            FileInputStream fin = new FileInputStream("C:\\DataAccess\\exerciseImage.jpg");
+            FileInputStream fin = new FileInputStream("images\\exerciseImage.jpg");
             int i = fin.read();
             String header = Integer.toHexString(i);
 
