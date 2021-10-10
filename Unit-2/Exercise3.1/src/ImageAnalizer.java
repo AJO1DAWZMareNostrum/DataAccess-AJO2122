@@ -24,6 +24,8 @@ public class ImageAnalizer {
                 System.out.println("The file type has NOT been identified.");
             }
 
+            fin.close();
+
     } catch (Exception e) {
             System.out.println(e);
         }
