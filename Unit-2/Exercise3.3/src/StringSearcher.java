@@ -32,6 +32,8 @@ public class StringSearcher {
                 i++;
             }
 
+            fin.close();
+
         } catch (Exception e) {
             System.out.println(e);
             System.out.println("The file can´t be found.");
