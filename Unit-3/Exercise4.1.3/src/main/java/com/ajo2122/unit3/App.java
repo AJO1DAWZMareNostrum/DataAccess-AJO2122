@@ -21,6 +21,7 @@ public class App
             System.out.println("Field has been added correctly to the table: " + hoursFieldAdded);
             // It has returned a false result, after creating the field correctly: I don´t understand why
 
+            con.close();
         } catch (SQLException ex) {
             System.out.println("An error has ocurred (see in the log results)");
             ex.printStackTrace();
