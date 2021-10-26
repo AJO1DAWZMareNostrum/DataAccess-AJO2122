@@ -26,6 +26,8 @@ public class App
 
             // Prints the number of values modified correctly
             System.out.println("Number of values modified: " + subjectsModified);
+
+            con.close();
         } catch (SQLException ex) {
             System.out.println("An error has ocurred (see in the log results)");
             ex.printStackTrace();
