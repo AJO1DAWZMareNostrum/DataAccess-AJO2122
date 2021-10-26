@@ -15,19 +15,19 @@ public class App
             // Connects to the database, and executes the ALTER statement
             Connection con = DriverManager.getConnection(url, user, password);
             Statement statement = con.createStatement();
-            String SQLsentence = "ALTER TABLE subjects ADD hours integer";
+            String SQLsentence = "ALTER TABLE subjects ADD hours varchar(3)";
             statement.execute(SQLsentence);
 
             String SQLsentenceAll = "SELECT * FROM subjects";
-            ResultSet rs = statement.executeQuery(SQLsentence);
+            ResultSet rs = statement.executeQuery(SQLsentenceAll);
 
             // We ask the user, through a loop, to introduce the number of hours of each course
             Scanner sc = new Scanner(System.in);
             while (rs.next()) {
-                System.out.print("Introduce the numbers of hours for the course " + rs.getString(2));
-                int hoursAdded = sc.nextInt();
+                System.out.print("Introduce the numbers of hours for the course " + rs.getString(2) + ": ");
+                String hoursAdded = sc.nextLine();
 
-                String SQLAddHours = "INSERT INTO subjects (hours) VALUES $(hoursAdded)";
+                String SQLAddHours = "INSERT INTO subjects (hours) VALUES (" + hoursAdded + ")";
                 statement.execute(SQLAddHours);
             }
 
