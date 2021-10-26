@@ -1,6 +1,7 @@
 package com.ajo2122.unit3;
 
 import java.sql.*;
+import java.util.Scanner;
 
 public class App 
 {
@@ -15,11 +16,20 @@ public class App
             Connection con = DriverManager.getConnection(url, user, password);
             Statement statement = con.createStatement();
             String SQLsentence = "ALTER TABLE subjects ADD hours integer";
-            boolean hoursFieldAdded = statement.execute(SQLsentence);
+            statement.execute(SQLsentence);
 
-            // We show through a boolean if the field has been added to the table subjects
-            System.out.println("Field has been added correctly to the table: " + hoursFieldAdded);
-            // It has returned a false result, after creating the field correctly: I don´t understand why
+            String SQLsentenceAll = "SELECT * FROM subjects";
+            ResultSet rs = statement.executeQuery(SQLsentence);
+
+            // We ask the user, through a loop, to introduce the number of hours of each course
+            Scanner sc = new Scanner(System.in);
+            while (rs.next()) {
+                System.out.print("Introduce the numbers of hours for the course " + rs.getString(2));
+                int hoursAdded = sc.nextInt();
+
+                String SQLAddHours = "INSERT INTO subjects (hours) VALUES $(hoursAdded)";
+                statement.execute(SQLAddHours);
+            }
 
             con.close();
         } catch (SQLException ex) {
