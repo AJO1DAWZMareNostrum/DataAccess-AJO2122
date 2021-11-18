@@ -115,13 +115,6 @@
                   <text value="Add"/>
                 </properties>
               </component>
-              <vspacer id="e7690">
-                <constraints>
-                  <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
-                    <preferred-size width="11" height="24"/>
-                  </grid>
-                </constraints>
-              </vspacer>
               <hspacer id="4aaa8">
                 <constraints>
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -132,6 +125,14 @@
                   <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
+              <component id="1a7fc" class="javax.swing.JLabel" binding="labelResult">
+                <constraints>
+                  <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value=""/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="38dac" binding="Enrollments" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
