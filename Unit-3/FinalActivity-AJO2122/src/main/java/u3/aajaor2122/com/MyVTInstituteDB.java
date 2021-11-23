@@ -16,7 +16,7 @@ public class MyVTInstituteDB {
             "INNER JOIN scores ON enrollment.code = scores.enrollmentid \n" +
             "INNER JOIN subjects ON subjects.code = scores.subjectid \n" +
             "INNER JOIN course ON course.code = subjects.course\n" +
-            "WHERE student = 2424";
+            "WHERE student = ?";
 
     public static List<Integer> getAllStudentIds() throws Exception {
         try (Connection conn = DriverManager.getConnection(url, user, pass)) {
@@ -50,8 +50,7 @@ public class MyVTInstituteDB {
     public static void insertStudent(String name, String surname, int id, String email, String phone)
         throws Exception {
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
-
-                // MAYBE REUSABLE in Tab 3
+                
                 PreparedStatement psCheckStudent = conn.prepareStatement(SQLquerys.checkStudentID);
                 psCheckStudent.setInt(1, id);
                 ResultSet rsCheckStudent = psCheckStudent.executeQuery();
@@ -119,7 +118,24 @@ public class MyVTInstituteDB {
 
                 psInsertScore.executeUpdate();
             }
+        }
+    }
 
+    public static String printStudentString(int idstudent) throws Exception {
+        try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+
+            String studentResult = "";
+
+            PreparedStatement psStudentData = conn.prepareStatement(getStudentDataToPrint);
+            psStudentData.setInt(1, idstudent);
+            ResultSet rsStudentData = psStudentData.executeQuery();
+            while (rsStudentData.next()) {
+                studentResult += rsStudentData.getString(1) + " - " +
+                        rsStudentData.getString(2) + ": " +
+                        rsStudentData.getInt(3) + "\n";
+            }
+
+            return studentResult;
         }
     }
 

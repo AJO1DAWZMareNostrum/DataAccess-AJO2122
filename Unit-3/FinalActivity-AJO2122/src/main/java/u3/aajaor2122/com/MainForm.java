@@ -43,6 +43,7 @@ public class MainForm {
 
         setUpStudentsUI();
         setUpEnrollmentsUI();
+        setUpStudentReportsUI();
 
         buttonEnroll.addActionListener(new ActionListener() {
             @Override
@@ -56,6 +57,23 @@ public class MainForm {
                 } catch (Exception ex) {
                     reportError(ex);
                 }
+            }
+        });
+
+        buttonPrint.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    int studentId = (Integer)cbStudentReports.getSelectedItem();
+                    String result = MyVTInstituteDB.printStudentString(studentId);
+
+                    textScoresResult.setText(result);
+
+                    // Llamar a JFILECHOOSER para elegir ruta donde guardar fichero
+                } catch (Exception ex) {
+                    reportError(ex);
+                }
+
             }
         });
     }
@@ -77,6 +95,7 @@ public class MainForm {
                         MyVTInstituteDB.insertStudent(name, surname, id, email, phone);
 
                         setUpEnrollmentsUI();
+                        setUpStudentReportsUI();
                         resultSuccess("Student inserted into the DB");
                         // refreshStudentBox();
                     } else {
@@ -109,14 +128,28 @@ public class MainForm {
         }
     }
 
-    // PASAR MENSAJE ERROR A MESSAGE BOX
+    public void setUpStudentReportsUI() {
+        try {
+            cbStudentReports.removeAllItems();
+
+            List<Integer> allStudentsIds = MyVTInstituteDB.getAllStudentIds();
+            for (Integer id: allStudentsIds) {
+                cbStudentReports.addItem(id);
+            }
+        } catch (Exception ex) {
+            reportError(ex);
+        }
+    }
+
     public void reportError(Exception ex) {
-        labelResult.setText(ex.getMessage());
+        JOptionPane.showMessageDialog(null, ex);
+
         ex.printStackTrace();
     }
-    // PASAR A MESSAGE BOX
+
     public void resultSuccess(String message) {
-        labelResult.setText(message);
+
+        JOptionPane.showMessageDialog(null, message);
     }
 
     public static void main(String[] args) {
@@ -127,6 +160,8 @@ public class MainForm {
         frame.setLocationRelativeTo(null);
         frame.setSize(380, 420);
         frame.setVisible(true);
+
+
     }
 
 }
