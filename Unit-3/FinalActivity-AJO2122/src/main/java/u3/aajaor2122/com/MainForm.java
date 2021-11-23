@@ -3,6 +3,9 @@ package u3.aajaor2122.com;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileWriter;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -65,11 +68,33 @@ public class MainForm {
             public void actionPerformed(ActionEvent e) {
                 try {
                     int studentId = (Integer)cbStudentReports.getSelectedItem();
-                    String result = MyVTInstituteDB.printStudentString(studentId);
+                    String textResult = MyVTInstituteDB.printStudentString(studentId);
 
-                    textScoresResult.setText(result);
+                    textScoresResult.setText(textResult);
 
                     // Llamar a JFILECHOOSER para elegir ruta donde guardar fichero
+                    int msg = JOptionPane.showConfirmDialog(null, "Do you want to print this data in a text file?",
+                                                    "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (msg == JOptionPane.YES_OPTION){
+                        // We save the student data selected into a text file, choosing the path first
+                        JFileChooser fs = new JFileChooser(new File("c:\\"));
+                        fs.setDialogTitle("Save data in a file");
+                        int saveResult = fs.showSaveDialog(null);
+                        if (saveResult == JFileChooser.APPROVE_OPTION) {
+                            File file = fs.getSelectedFile();
+                            // SE IMPRIME correctamente pero NO HAY SALTO DE LINEA
+                            try {
+                                FileWriter fw = new FileWriter(file.getPath());
+                                fw.write(textScoresResult.getText());
+                                fw.flush();
+                                fw.close();
+                            }
+                            catch (Exception ex) {
+                                reportError(ex);
+                            }
+                        }
+                    }
+
                 } catch (Exception ex) {
                     reportError(ex);
                 }
@@ -158,7 +183,7 @@ public class MainForm {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setLocationRelativeTo(null);
-        frame.setSize(380, 420);
+        frame.setSize(420, 420);
         frame.setVisible(true);
 
 

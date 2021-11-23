@@ -50,7 +50,7 @@ public class MyVTInstituteDB {
     public static void insertStudent(String name, String surname, int id, String email, String phone)
         throws Exception {
             try (Connection conn = DriverManager.getConnection(url, user, pass)) {
-                
+
                 PreparedStatement psCheckStudent = conn.prepareStatement(SQLquerys.checkStudentID);
                 psCheckStudent.setInt(1, id);
                 ResultSet rsCheckStudent = psCheckStudent.executeQuery();
