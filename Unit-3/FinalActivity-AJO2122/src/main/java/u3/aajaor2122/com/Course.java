@@ -18,6 +18,7 @@ public class Course {
         return name;
     }
 
+    // Overloads the number object reference, with the actual name of the student
     @Override
     public String toString() {
         return name;
