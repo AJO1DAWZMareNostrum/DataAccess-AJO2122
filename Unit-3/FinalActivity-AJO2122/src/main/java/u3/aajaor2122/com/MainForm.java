@@ -1,19 +1,20 @@
 package u3.aajaor2122.com;
 
 import javax.swing.*;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileWriter;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.List;
 
 /**
- *  CONTROLLER class - related to every aspect of the graphical interface
+ *  CONTROLLER class - related to every aspect of the graphical interface: controls and set up
+ *  every element of the program and relates it to the Database methods in the program
+ *
  * @author Aarón Jamet Orgiles - 2DAMU
  */
-
 public class MainForm {
     private JPanel mainFormPanel;
     private JTabbedPane Enrollment;
@@ -41,13 +42,19 @@ public class MainForm {
     private JPanel Reports;
     private JPanel Utilities;
 
-    // Constructor for the graphical interface or GUI
+    /**
+     *   Constructor for the graphical interface or GUI
+      */
     public MainForm() {
 
         setUpStudentsUI();
         setUpEnrollmentsUI();
         setUpStudentReportsUI();
 
+        /**
+         *  Listener for the button that allows to enroll new Students from
+         *  the Enrollments section
+         */
         buttonEnroll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -63,6 +70,10 @@ public class MainForm {
             }
         });
 
+        /**
+         *  Listener for the button that allows to print specific data about Students from
+         *  the Reports section, using the id of the Student as a reference
+         */
         buttonPrint.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -82,7 +93,7 @@ public class MainForm {
                         int saveResult = fs.showSaveDialog(null);
                         if (saveResult == JFileChooser.APPROVE_OPTION) {
                             File file = fs.getSelectedFile();
-                            // SE IMPRIME correctamente pero NO HAY SALTO DE LINEA
+                            // SE IMPRIME correctamente - abrir con Notepad++
                             try {
                                 FileWriter fw = new FileWriter(file.getPath());
                                 fw.write(textScoresResult.getText());
@@ -101,8 +112,44 @@ public class MainForm {
 
             }
         });
+
+        /**
+         *  Listener for the button that allows to import and parse an XML file, retrieve from
+         *  it some data, and then insert it with transaction mode into the database
+         */
+        buttonImportXML.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                int msg = JOptionPane.showConfirmDialog(null, "Do you want to import and insert a XML file?",
+                        "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (msg == JOptionPane.YES_OPTION){
+                    // We save the student data selected into a text file, choosing the path first
+                    JFileChooser fs = new JFileChooser(new File("c:\\"));
+                    fs.setDialogTitle("Save data in a file");
+                    int saveResult = fs.showSaveDialog(null);
+                    if (saveResult == JFileChooser.APPROVE_OPTION) {
+                        File file = fs.getSelectedFile();
+                        try {
+                            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+                            XMLparser xmlParser = new XMLparser();
+                            saxParser.parse(file, xmlParser);
+
+                            MyVTInstituteDB.importXMLfile(xmlParser.getStudents(), xmlParser.getCourses(),
+                                    xmlParser.getSubjects());
+
+                        } catch (Exception ex) {
+                            reportError(ex);
+                        }
+                    }
+                }
+            }
+        });
     }
 
+    /**
+     *  Method for setting up, configure, and listen to: the students section of the program
+     */
     public void setUpStudentsUI() {
         // Add button listener; inserts new students into the database
         buttonAdd.addActionListener(new ActionListener() {
@@ -133,6 +180,9 @@ public class MainForm {
         });
     }
 
+    /**
+     *  Method for setting up, configure, and listen to: the Enrollments section of the program
+     */
     public void setUpEnrollmentsUI() {
         try {
             comboBoxStudent.removeAllItems();
@@ -153,6 +203,9 @@ public class MainForm {
         }
     }
 
+    /**
+     *  Method for setting up, configure, and listen to: the Reports section of the program
+     */
     public void setUpStudentReportsUI() {
         try {
             cbStudentReports.removeAllItems();
@@ -166,17 +219,34 @@ public class MainForm {
         }
     }
 
+    /**
+     *  Method that receives an exception from some part of the program, and allows to
+     *  show it into a MessageDialog to the program´s user
+     *
+     * @param ex  the exception received by the program and showed in a MessageDialog
+     */
     public void reportError(Exception ex) {
         JOptionPane.showMessageDialog(null, ex);
 
         ex.printStackTrace();
     }
 
+    /**
+     *  Method that receives an success message from some part of the program, and allows to
+     *  show it into a MessageDialog to the program´s user
+     *
+     * @param message  the message received by the program and showed in a MessageDialog
+     */
     public void resultSuccess(String message) {
 
         JOptionPane.showMessageDialog(null, message);
     }
 
+    /**
+     *  Starting point of the program, that launches the interface and allows the user to interact with it
+     *
+     * @param args  default parameter´s array of strings of the program
+     */
     public static void main(String[] args) {
         JFrame frame = new JFrame("VTInstitute-AJO2122");
         frame.setContentPane(new MainForm().mainFormPanel);
@@ -185,8 +255,6 @@ public class MainForm {
         frame.setLocationRelativeTo(null);
         frame.setSize(420, 420);
         frame.setVisible(true);
-
-
     }
 
 }

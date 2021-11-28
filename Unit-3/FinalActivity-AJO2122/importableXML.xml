@@ -1,0 +1,34 @@
+<vtinstitute>
+<students>
+<student id="101">
+<firstname>Jose</firstname>
+<lastname>García</lastname>
+<email>jrgarcia@iesmarenostrum.com</email>
+<phone>616116611</phone>
+</student>
+<student id="102">
+<firstname>Antonio</firstname>
+<lastname>Luque</lastname>
+</student>
+</students>
+<courses>
+<course id="3">
+<name>Graphic design</name>
+</course>
+<course id="4">
+<name>Economics</name>
+</course>
+</courses>
+<subjects>
+<subject id="30" course="3">
+<name>Introduction to CAD/CAM</name>
+<hours>60</hours>
+<year>1</year>
+</subject>
+<subject id="40" course="4">
+<name>Accounting</name>
+<hours>90</hours>
+<year>1</year>
+</subject>
+</subjects>
+</vtinstitute>
