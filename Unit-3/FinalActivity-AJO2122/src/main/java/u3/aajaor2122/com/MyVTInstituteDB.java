@@ -12,9 +12,9 @@ import java.util.List;
  */
 public class MyVTInstituteDB {
 
-    static final String url = "jdbc:postgresql://localhost:5432/VTInstitute";
+    static final String url = "jdbc:postgresql://localhost:5432/VTInstitute-AJO2122";
     static final String user = "postgres";
-    static final String pass = "dandy123.,"; // en EXAMEN preguntar password al profesor
+    static final String pass = "postgres"; // en EXAMEN preguntar password al profesor
 
     /**
      * Retrieves all the student ids registered into the database
@@ -164,13 +164,38 @@ public class MyVTInstituteDB {
             PreparedStatement psStudentData = conn.prepareStatement(SQLquerys.getStudentDataToPrint);
             psStudentData.setInt(1, idstudent);
             ResultSet rsStudentData = psStudentData.executeQuery();
+
+            int totalScore = 0;
+            int i = 0;
             while (rsStudentData.next()) {
                 studentResult += rsStudentData.getString(1) + " - " +
                         rsStudentData.getString(2) + ": " +
                         rsStudentData.getInt(3) + "\n";
+
+                totalScore += rsStudentData.getInt(3);
+                i++;
             }
 
+            int averageScore = totalScore / i;
+            studentResult += "\n\nAverage Score: " + averageScore;
+
             return studentResult;
+        }
+    }
+
+    public static String showStudentName(int id) throws Exception {
+        try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+            String studentName = "";
+
+            PreparedStatement psStudentName = conn.prepareStatement(SQLquerys.getStudentFullName);
+            psStudentName.setInt(1, id);
+            ResultSet rsStudentName = psStudentName.executeQuery();
+            while (rsStudentName.next()) {
+                studentName += rsStudentName.getString(1) + " " +
+                        rsStudentName.getString(2);
+            }
+
+            return studentName;
         }
     }
 
