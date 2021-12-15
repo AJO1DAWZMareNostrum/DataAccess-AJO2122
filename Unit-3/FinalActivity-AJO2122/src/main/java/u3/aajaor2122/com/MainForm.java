@@ -41,6 +41,9 @@ public class MainForm {
     private JLabel labelResult;
     private JPanel Reports;
     private JPanel Utilities;
+    private JTextField txtStudentIDSearch;
+    private JButton buttonSearchById;
+    private JTextField txtStudentFullName;
 
     /**
      *   Constructor for the graphical interface or GUI
@@ -145,6 +148,27 @@ public class MainForm {
                 }
             }
         });
+
+        /**
+         *  Listener for the button that search for the user full name (first + last) given
+         *  an student´s id
+         */
+        buttonSearchById.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+                    int studentId = Integer.valueOf(txtStudentIDSearch.getText());
+                    String fullName = MyVTInstituteDB.showStudentName(studentId);
+
+                    txtStudentFullName.setText(fullName);
+
+                } catch (Exception ex) {
+                    reportError(ex);
+                }
+
+            }
+        });
     }
 
     /**
@@ -161,8 +185,29 @@ public class MainForm {
                         String name = textFirstName.getText();
                         String surname = textLastName.getText();
                         int id = Integer.valueOf(textIDCard.getText());
+
                         String email = textEmail.getText();
+                        try {
+                            int containsAt = email.indexOf('@');
+                            int emailIndexIsValid = email.indexOf(containsAt, '.');
+
+                            // If there is more than one character bewtween '@' and '.'
+                            if (emailIndexIsValid - containsAt <= 1) {
+                                labelResult.setText("El número debe contener 9 dígitos");
+                            }
+                        } catch (Exception ex) {
+                            reportError(ex);
+                        }
+
+
                         String phone = textPhone.getText();
+                        try {
+                            if (phone.length() != 9 ) {
+                                labelResult.setText("Number must contain 9 digits");
+                            }
+                        } catch (Exception ex) {
+                            reportError(ex);
+                        }
 
                         MyVTInstituteDB.insertStudent(name, surname, id, email, phone);
 

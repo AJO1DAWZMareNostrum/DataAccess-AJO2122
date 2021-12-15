@@ -35,4 +35,6 @@ public class SQLquerys {
 
     static final String insertCourse = "INSERT INTO course (code, name) VALUES (?, ?)";
     static final String insertSubject = "INSERT INTO subjects (code, name, year, hours, course) VALUES (?, ?, ?, ?, ?)";
+
+    static final String getStudentFullName = "SELECT firstname, lastname FROM student WHERE idcard = ?";
 }
