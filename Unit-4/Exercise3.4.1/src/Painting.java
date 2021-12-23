@@ -8,9 +8,9 @@ enum PaintingTypes {
 
 class Painting extends ArtWork {
 
-    private PaintingTypes type;
-    private float width;
-    private float height;
+    protected PaintingTypes type;
+    protected float width;
+    protected float height;
 
     public Painting() {}
 
@@ -23,7 +23,7 @@ class Painting extends ArtWork {
     }
 
     public PaintingTypes getType() { return type; }
-    public void setPainting(PaintingTypes value) {
+    public void setType(PaintingTypes value) {
         if (value == PaintingTypes.OILPAINTING || value == PaintingTypes.WATERCOLOUR
             || value == PaintingTypes.PASTEL)
             type = value;
@@ -65,6 +65,8 @@ class Painting extends ArtWork {
             return false;
 
         Painting otherPainting = (Painting)other;
-        return
+        return (this.type == otherPainting.type &&
+                this.width == otherPainting.width &&
+                this.height == otherPainting.height);
     }
 }
