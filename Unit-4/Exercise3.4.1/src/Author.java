@@ -1,6 +1,3 @@
-// Añadirlo a la clase principal de db4o
-// import com.db4o.*;
-
 class Author {
 
     private String code;

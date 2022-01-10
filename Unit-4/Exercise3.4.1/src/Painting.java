@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.Date;
 
 enum PaintingTypes {
@@ -14,9 +15,9 @@ class Painting extends ArtWork {
 
     public Painting() {}
 
-    public Painting(int code, String title, Date dated, Styles style, String authorCode,
+    public Painting(int code, String title, LocalDate dated, String authorCode,
                     PaintingTypes type, float width, float height) {
-        super(code, title, dated, style, authorCode);
+        super(code, title, dated, authorCode);
         this.type = type;
         this.width = width;
         this.height = height;

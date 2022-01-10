@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.Date;
 
 enum Styles {
@@ -10,7 +11,7 @@ class ArtWork {
 
     protected int code;
     protected String title;
-    protected Date dated;
+    protected LocalDate dated;
     protected Styles style;
     protected String authorCode;
 
@@ -18,11 +19,18 @@ class ArtWork {
 
     }
 
-    public ArtWork(int code, String title, Date dated, Styles style, String authorCode) {
+    public ArtWork(int code, String title, LocalDate dated, Styles style, String authorCode) {
         this.code = code;
         this.title = title;
         this.dated = dated;
         this.style = style;
+        this.authorCode = authorCode;
+    }
+
+    public ArtWork(int code, String title, LocalDate dated,  String authorCode) {
+        this.code = code;
+        this.title = title;
+        this.dated = dated;
         this.authorCode = authorCode;
     }
 
@@ -32,8 +40,8 @@ class ArtWork {
     public String getTitle() { return title; }
     public void setTitle(String value) { title = value; }
 
-    public Date getDate() { return dated; }
-    public void setDated(Date date) { dated = date; }
+    public LocalDate getDate() { return dated; }
+    public void setDated(LocalDate date) { dated = date; }
 
     public Styles getStyle() { return style; }
     public void setStyle(Styles value) {

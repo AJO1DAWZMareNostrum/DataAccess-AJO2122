@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.Date;
 
 enum MaterialTypes {
@@ -15,9 +16,9 @@ public class Sculpture extends ArtWork {
 
     }
 
-    public Sculpture(int code, String title, Date dated, Styles style, String authorCode,
+    public Sculpture(int code, String title, LocalDate dated, String authorCode,
                      MaterialTypes material, float weigth) {
-        super(code, title, dated, style, authorCode);
+        super(code, title, dated, authorCode);
         this.material = material;
         this.weigth = weigth;
     }
