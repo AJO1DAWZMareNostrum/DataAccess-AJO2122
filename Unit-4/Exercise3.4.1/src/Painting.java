@@ -15,7 +15,7 @@ class Painting extends ArtWork {
 
     public Painting() {}
 
-    public Painting(int code, String title, LocalDate dated, String authorCode,
+    public Painting(int code, String title, String dated, String authorCode,
                     PaintingTypes type, float width, float height) {
         super(code, title, dated, authorCode);
         this.type = type;

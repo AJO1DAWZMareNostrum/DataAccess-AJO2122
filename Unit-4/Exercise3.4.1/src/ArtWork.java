@@ -1,5 +1,4 @@
 import java.time.LocalDate;
-import java.util.Date;
 
 enum Styles {
     GRECOROMAN,
@@ -10,8 +9,7 @@ enum Styles {
 class ArtWork {
 
     protected int code;
-    protected String title;
-    protected LocalDate dated;
+    protected String title, dated;
     protected Styles style;
     protected String authorCode;
 
@@ -19,7 +17,7 @@ class ArtWork {
 
     }
 
-    public ArtWork(int code, String title, LocalDate dated, Styles style, String authorCode) {
+    public ArtWork(int code, String title, String dated, Styles style, String authorCode) {
         this.code = code;
         this.title = title;
         this.dated = dated;
@@ -27,7 +25,7 @@ class ArtWork {
         this.authorCode = authorCode;
     }
 
-    public ArtWork(int code, String title, LocalDate dated,  String authorCode) {
+    public ArtWork(int code, String title, String dated,  String authorCode) {
         this.code = code;
         this.title = title;
         this.dated = dated;
@@ -40,8 +38,8 @@ class ArtWork {
     public String getTitle() { return title; }
     public void setTitle(String value) { title = value; }
 
-    public LocalDate getDate() { return dated; }
-    public void setDated(LocalDate date) { dated = date; }
+    public String getDate() { return dated; }
+    public void setDated(String date) { dated = date; }
 
     public Styles getStyle() { return style; }
     public void setStyle(Styles value) {

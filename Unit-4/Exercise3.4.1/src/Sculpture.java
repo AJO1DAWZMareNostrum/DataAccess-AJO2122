@@ -16,7 +16,7 @@ public class Sculpture extends ArtWork {
 
     }
 
-    public Sculpture(int code, String title, LocalDate dated, String authorCode,
+    public Sculpture(int code, String title, String dated, String authorCode,
                      MaterialTypes material, float weigth) {
         super(code, title, dated, authorCode);
         this.material = material;

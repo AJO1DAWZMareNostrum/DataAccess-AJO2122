@@ -10,7 +10,7 @@ public class MainDb4o {
     public static void main(String[] args) throws Exception {
 
         Scanner sc = new Scanner(System.in);
-        int userOption = -1;
+        int userOption = -1, optionMainMenu = -1;
         ObjectContainer db = null;
 
         do {
@@ -19,9 +19,10 @@ public class MainDb4o {
             System.out.println("3. List artwork from a specific category (Painting Type, Material Type, or Styles)");
             System.out.println("0. Exit program.");
             System.out.println("Introduce the number of an option, or 0 to exit program: ");
+            optionMainMenu = Integer.parseInt(sc.nextLine());
 
-            if (userOption == 1 || userOption == 2 || userOption == 3 || userOption == 0)
-                userOption = sc.nextInt();
+            if (optionMainMenu == 1 || optionMainMenu == 2 || optionMainMenu == 3 || optionMainMenu == 0)
+                userOption = optionMainMenu;
             else
                 System.out.println("Option introduced is not valid. Try again.");
 
@@ -70,17 +71,15 @@ public class MainDb4o {
                     case 2:
                         // Asks for the properties of a given new ArtWork
                         int code, styleOption;
-                        String title, authorCodeArtwork;
+                        String title, dated, authorCodeArtwork;
                         Styles style;
-                        LocalDate dated;
 
                         System.out.println("Introduce a number code for the artwork: ");
                         code = Integer.parseInt(sc.nextLine());
                         System.out.println("Introduce the title of the artwork: ");
                         title = sc.nextLine();
-                        System.out.println("Introduce the creation date of the artwork (year, month, day): ");
-                        String stringDate = sc.nextLine();
-                        dated = LocalDate.parse(stringDate, DateTimeFormatter.BASIC_ISO_DATE);
+                        System.out.println("Introduce the creation date of the artwork (day, month, year): ");
+                        dated = sc.nextLine();
 
                         System.out.println("Introduce the style of the artwork (1=GRECOROMAN, 2=NEOCLASSIC, 3=CUBISM): ");
                         styleOption = sc.nextInt();
@@ -121,17 +120,15 @@ public class MainDb4o {
                         // Asks for the properties of a given new Painting
                         int codePaint, typeOption;
                         float width, height;
-                        String titlePainting, authorCodePainting;
+                        String titlePainting, authorCodePainting, datedPainting;
                         PaintingTypes type;
-                        LocalDate datedPainting;
 
                         System.out.println("Introduce a number code for the artwork: ");
                         codePaint = Integer.parseInt(sc.nextLine());
                         System.out.println("Introduce the title of the artwork: ");
                         titlePainting = sc.nextLine();
-                        System.out.println("Introduce the creation date of the artwork (year, month, day): ");
-                        String paintingDate = sc.nextLine();
-                        datedPainting = LocalDate.parse(paintingDate, DateTimeFormatter.BASIC_ISO_DATE);
+                        System.out.println("Introduce the creation date of the artwork (day, month, year): ");
+                        datedPainting = sc.nextLine();
 
                         System.out.println("Introduce the code of the author (format MUST be 3 initials plus" +
                                 "4 digits of year of birth):");
@@ -177,17 +174,15 @@ public class MainDb4o {
                         // Asks for the properties of a given new Sculpture
                         int codeSculpt, styleOptionSculpture, materialOption;
                         float weight;
-                        String sculptureTitle, authorCodeSculpture;
+                        String sculptureTitle, authorCodeSculpture, datedSculpture;
                         MaterialTypes material;
-                        LocalDate datedSculpture;
 
                         System.out.println("Introduce a number code for the artwork: ");
                         codeSculpt = Integer.parseInt(sc.nextLine());
                         System.out.println("Introduce the title of the artwork: ");
                         sculptureTitle = sc.nextLine();
-                        System.out.println("Introduce the creation date of the artwork (year, month, day): ");
-                        String sculptureDate = sc.nextLine();
-                        datedSculpture = LocalDate.parse(sculptureDate, DateTimeFormatter.BASIC_ISO_DATE);
+                        System.out.println("Introduce the creation date of the artwork (day, month, year): ");
+                        datedSculpture = sc.nextLine();
 
                         System.out.println("Introduce the code of the author (format MUST be 3 initials plus" +
                                 "4 digits of year of birth):");
@@ -233,18 +228,157 @@ public class MainDb4o {
             } else if (userOption == 2) {
 
                 // List all the artworks of a given author
-                ObjectSet artworks = db.queryByExample( new Author())
+                System.out.println("Enter the code of an author to see its artworks: ");
+                String authorCode = sc.nextLine();
+                ObjectSet artworks = db.queryByExample( new ArtWork(0, null, null, null, authorCode));
+                if (!artworks.hasNext())
+                    System.out.println("Code of the author has not been found in the database.");
+                while (artworks.hasNext())
+                    System.out.println(artworks.next());
 
 
             } else if (userOption == 3) {
 
                 // List artwork from a specific category (Painting Type, Material Type, or Styles)
+                System.out.println("1. List all paintings by painting type.");
+                System.out.println("2. List all sculptures by material type.");
+                System.out.println("3. List all artworks by style.");
+                System.out.println("0. Exit");
+                System.out.println("Introduce an option about listing: ");
+
+                int listOption = Integer.parseInt(sc.nextLine());
+                do {
+                    switch (listOption) {
+
+                        // List paintings by painting type
+                        case 1:
+                            System.out.println("1. List all the paintings tha use Oil Painting\n" +
+                                               "2. List all the painting that use Watercolour\n" +
+                                               "3. List all the paintings that use Pastel\n" +
+                                               "Select one of the above options to list filtered paintings: ");
+                            int paintingStyleOption = Integer.parseInt(sc.nextLine());
+
+                            if (paintingStyleOption == 1) {
+                                // List paintings that use Oil Painting
+                                ObjectSet oilPaintings = db.queryByExample(
+                                                            new Painting(0, null, null, null, PaintingTypes.OILPAINTING, 0, 0));
+                                if (!oilPaintings.hasNext())
+                                    System.out.println("Artworks with Oil Painting style haven´t been found in the database.");
+                                while (oilPaintings.hasNext())
+                                    System.out.println(oilPaintings.next());
+                            }
+                            else if (paintingStyleOption == 2) {
+                                // List paintings that use Watercolour
+                                ObjectSet watercolourPaintings = db.queryByExample(
+                                        new Painting(0, null, null, null, PaintingTypes.WATERCOLOUR, 0, 0));
+                                if (!watercolourPaintings.hasNext())
+                                    System.out.println("Artworks with Oil Painting style haven´t been found in the database.");
+                                while (watercolourPaintings.hasNext())
+                                    System.out.println(watercolourPaintings.next());
+                            }
+                            else if (paintingStyleOption == 3) {
+                                // List paintings that use Pastel
+                                ObjectSet pastelPaintings = db.queryByExample(
+                                        new Painting(0, null, null, null, PaintingTypes.PASTEL, 0, 0));
+                                if (!pastelPaintings.hasNext())
+                                    System.out.println("Artworks with Oil Painting style haven´t been found in the database.");
+                                while (pastelPaintings.hasNext())
+                                    System.out.println(pastelPaintings.next());
+                            }
+                            else
+                                System.out.println("Option/number introduced is NOT a valid one.");
+                            break;
+
+                        case 2:
+                            // List sculptures by material type
+                            System.out.println("1. List all the sculptures tha use Iron\n" +
+                                    "2. List all the sculptures tha use Bronze\n" +
+                                    "3. List all the sculptures tha use Marble\n" +
+                                    "Select one of the above options to list filtered sculptures: ");
+                            int materialOption = Integer.parseInt(sc.nextLine());
+
+                            if (materialOption == 1) {
+                                // List all sculptures that use Iron material
+                                ObjectSet ironSculptures = db.queryByExample(
+                                        new Sculpture(0, null, null, null, MaterialTypes.IRON, 0));
+                                if (!ironSculptures.hasNext())
+                                    System.out.println("Sculptures with Iron material haven´t been found in the database.");
+                                while (ironSculptures.hasNext())
+                                    System.out.println(ironSculptures.next());
+                            }
+                            else if (materialOption == 2) {
+                                // List all sculptures that use Bronze material
+                                ObjectSet bronzeSculptures = db.queryByExample(
+                                        new Sculpture(0, null, null, null, MaterialTypes.BRONZE, 0));
+                                if (!bronzeSculptures.hasNext())
+                                    System.out.println("Sculptures with Iron material haven´t been found in the database.");
+                                while (bronzeSculptures.hasNext())
+                                    System.out.println(bronzeSculptures.next());
+                            }
+                            else if (materialOption == 3) {
+                                // List all sculptures that use Marble material
+                                ObjectSet marbleSculptures = db.queryByExample(
+                                        new Sculpture(0, null, null, null, MaterialTypes.MARBLE, 0));
+                                if (!marbleSculptures.hasNext())
+                                    System.out.println("Sculptures with Iron material haven´t been found in the database.");
+                                while (marbleSculptures.hasNext())
+                                    System.out.println(marbleSculptures.next());
+                            }
+                            else
+                                System.out.println("Option/number introduced is NOT a valid one.");
+                            break;
+
+                        case 3:
+                            // List artworks by style
+                            System.out.println("1. List all the artworks with Grecoroman style\n" +
+                                    "2. List all the artworks with Neoclassic style\n" +
+                                    "3. List all the artworks with Cubism style\n" +
+                                    "Select one of the above options to list filtered artworks: ");
+                            int styleOption = Integer.parseInt(sc.nextLine());
+
+                            if (styleOption == 1) {
+                                // List all the artworks with Grecoroman style
+                                ObjectSet grecoromanArt = db.queryByExample(
+                                        new ArtWork(0, null, null, Styles.GRECOROMAN, null));
+                                if (!grecoromanArt.hasNext())
+                                    System.out.println("Artworks of Grecoroman style haven´t been found in the database.");
+                                while (grecoromanArt.hasNext())
+                                    System.out.println(grecoromanArt.next());
+                            }
+                            else if (styleOption == 2) {
+                                // List all the artworks with Neoclassic style
+                                ObjectSet neoclassicArt = db.queryByExample(
+                                        new ArtWork(0, null, null, Styles.NEOCLASSIC, null));
+                                if (!neoclassicArt.hasNext())
+                                    System.out.println("Artworks of Grecoroman style haven´t been found in the database.");
+                                while (neoclassicArt.hasNext())
+                                    System.out.println(neoclassicArt.next());
+                            }
+                            else if (styleOption == 3) {
+                                // List all the artworks with Cubist style
+                                ObjectSet cubistArt = db.queryByExample(
+                                        new ArtWork(0, null, null, Styles.CUBISM, null));
+                                if (!cubistArt.hasNext())
+                                    System.out.println("Artworks of Grecoroman style haven´t been found in the database.");
+                                while (cubistArt.hasNext())
+                                    System.out.println(cubistArt.next());
+                            }
+                            else
+                                System.out.println("Option/number introduced is NOT a valid one.");
+                            break;
+
+                        default:
+                            System.out.println("Option/number introduced is NOT a valid one.");
+                    }
+
+                } while (listOption != 0);
 
             } else
                 System.out.println("Option is NOT a valid one. Try again:");
 
         } while(userOption != 0);
 
+        System.out.println("Program has been terminated. Goodbye!");
         sc.close();
     }
 
