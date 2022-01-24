@@ -3,6 +3,7 @@ package com.aajaor2122.unit5;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
@@ -12,14 +13,16 @@ import java.util.logging.Level;
 
 public class App 
 {
+    static Scanner sc = new Scanner(System.in);
+
     public static void main( String[] args )
     {
-        Scanner sc = new Scanner(System.in);
+        //Scanner sc = new Scanner(System.in);
         int option = -1;
 
         while (option != 0) {
             System.out.println("1. Consult entries.");
-            System.out.println("2. Create entry.");
+            System.out.println("2. Create/insert entry.");
             System.out.println("3. Update entry.");
             System.out.println("4. Delete entry");
             System.out.print("Choose one option, or 0 to leave program: ");
@@ -53,7 +56,19 @@ public class App
 
                     if (insertOption == 1)
                         insertDepartment();
-                    //if (insertOption == 2)
+                    if (insertOption == 2)
+                        insertEmployee();
+
+                    else
+                        System.out.println("Option NOT valid. Incorrect option number.");
+
+                    break;
+
+                // Option to update existing entries in the database
+                case 3:
+                    int updateOption = 0;
+                    System.out.print("1. Update an existing department: ");
+                    System.out.println("2. Update an existing employee: ");
             }
         }
 
@@ -125,6 +140,45 @@ public class App
     }
 
     public static void insertDepartment() {
-
+        System.out.print("Name of department?: ");
+        String dname = sc.nextLine();
+        System.out.print("Department´s location?: ");
+        String dlocation = sc.nextLine();
+        try (Session session = openSession()) {
+            Transaction transaction = session.beginTransaction();
+            DeptEntity department = new DeptEntity();
+            department.setDname(dname);
+            department.setLoc(dlocation);
+            session.save(department);
+            transaction.commit();
+        }
+        catch (HibernateException hiex) {
+            System.err.println( hiex.getMessage() );
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    public static void insertEmployee() {
+        System.out.print("Name of the employee?: ");
+        String ename = sc.nextLine();
+        System.out.print("Employee´s job?: ");
+        String ejob = sc.nextLine();
+        try (Session session = openSession()) {
+            Transaction transaction = session.beginTransaction();
+            EmployeeEntity employee = new EmployeeEntity();
+            employee.setEname(ename);
+            employee.setJob(ejob);
+            session.save(employee);
+            transaction.commit();
+        }
+        catch (HibernateException hiex) {
+            System.err.println( hiex.getMessage() );
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
