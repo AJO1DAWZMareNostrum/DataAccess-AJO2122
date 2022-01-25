@@ -7,8 +7,10 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
+import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class App 
@@ -39,7 +41,7 @@ public class App
 
                     if (consultOption == 1)
                         consultDeptData();
-                    if (consultOption == 2)
+                    else if (consultOption == 2)
                         consultEmployeesData();
                     else
                         System.out.println("Option NOT valid. Incorrect option number.");
@@ -56,9 +58,8 @@ public class App
 
                     if (insertOption == 1)
                         insertDepartment();
-                    if (insertOption == 2)
+                    else if (insertOption == 2)
                         insertEmployee();
-
                     else
                         System.out.println("Option NOT valid. Incorrect option number.");
 
@@ -67,8 +68,33 @@ public class App
                 // Option to update existing entries in the database
                 case 3:
                     int updateOption = 0;
-                    System.out.print("1. Update an existing department: ");
+                    System.out.println("1. Update an existing department: ");
                     System.out.println("2. Update an existing employee: ");
+                    System.out.print("Select one option: ");
+                    updateOption = Integer.parseInt(sc.nextLine());
+
+                    if (updateOption == 1) {
+                        System.out.print("Introduce the number of the department you would like to update: ");
+                        int deptNum = Integer.parseInt(sc.nextLine());
+                        System.out.print("Enter the new name for the department: ");
+                        String newDeptName = sc.nextLine();
+                        System.out.print("Enter the new location for the department: ");
+                        String newDeptLoc = sc.nextLine();
+                        updateDepartment(deptNum, newDeptName, newDeptLoc);
+                    }
+
+                    if (updateOption == 2) {
+                        System.out.print("Introduce the number of the employee you would like to update: ");
+                        int empNum = Integer.parseInt(sc.nextLine());
+                        System.out.print("Enter the new name for the employee: ");
+                        String newEmpName = sc.nextLine();
+                        System.out.print("Enter the new job for the employee: ");
+                        String newJob = sc.nextLine();
+                        System.out.print("Enter the number of an existing department for this employee: ");
+                        int deptNum = Integer.parseInt(sc.nextLine());
+
+                        updateEmployee(empNum, newEmpName, newJob, deptNum);
+                    }
             }
         }
 
@@ -107,7 +133,8 @@ public class App
             for (Object deptObject : departments) {
                 DeptEntity department = (DeptEntity) deptObject;
                 System.out.printf("Number: %d   Name: %s   Location: %s%nEmployees: %s%n%n",
-                        department.getDeptno(), department.getDname(), department.getLoc(), department.getEmployeesList());
+                        department.getDeptno(), department.getDname(), department.getLoc(),
+                        printEmployeesList(department.getEmployeesList()));
             }
         }
         catch (HibernateException hiex) {
@@ -116,6 +143,20 @@ public class App
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // Method to print the employee´s list in a String format
+    public static String printEmployeesList(Set employeesList) {
+
+        String employeeData = "";
+        for(Object employee : employeesList) {
+            employeeData += ((EmployeeEntity) employee).getEmpno() + ", ";
+            employeeData += ((EmployeeEntity) employee).getEname() + ", ";
+            employeeData += ((EmployeeEntity) employee).getJob() + ", ";
+            employeeData += ((EmployeeEntity) employee).getDepartment().getDname() + " | ";
+        }
+
+        return employeeData;
     }
 
     // Method to print all the data from Employee entities
@@ -127,8 +168,10 @@ public class App
 
             for (Object emplObject : employees) {
                 EmployeeEntity employee = (EmployeeEntity) emplObject;
+                // We create an instance of Department class to be able to access its properties
+                DeptEntity department = employee.getDepartment();
                 System.out.printf("Number: %d   Name: %s   Job: %s   Department: %s%n",
-                        employee.getEmpno(), employee.getEname(), employee.getJob(), employee.getDepartment());
+                        employee.getEmpno(), employee.getEname(), employee.getJob(), department.getDname());
             }
         }
         catch (HibernateException hiex) {
@@ -140,6 +183,8 @@ public class App
     }
 
     public static void insertDepartment() {
+        System.out.print("Number of the new department? ");
+        int dnumber = Integer.parseInt(sc.nextLine());
         System.out.print("Name of department?: ");
         String dname = sc.nextLine();
         System.out.print("Department´s location?: ");
@@ -147,6 +192,7 @@ public class App
         try (Session session = openSession()) {
             Transaction transaction = session.beginTransaction();
             DeptEntity department = new DeptEntity();
+            department.setDeptno(dnumber);
             department.setDname(dname);
             department.setLoc(dlocation);
             session.save(department);
@@ -161,6 +207,8 @@ public class App
     }
 
     public static void insertEmployee() {
+        System.out.println("Number of the new employee? ");
+        int enumber = Integer.parseInt(sc.nextLine());
         System.out.print("Name of the employee?: ");
         String ename = sc.nextLine();
         System.out.print("Employee´s job?: ");
@@ -168,6 +216,7 @@ public class App
         try (Session session = openSession()) {
             Transaction transaction = session.beginTransaction();
             EmployeeEntity employee = new EmployeeEntity();
+            employee.setEmpno(enumber);
             employee.setEname(ename);
             employee.setJob(ejob);
             session.save(employee);
@@ -181,4 +230,53 @@ public class App
         }
     }
 
+    public static void updateDepartment(int deptNumber, String newName, String newLoc) {
+        try (Session session = openSession()) {
+            Query<DeptEntity> deptQuery =
+                    session.createQuery("from com.aajaor2122.unit5.DeptEntity where deptno='" +
+                            String.valueOf(deptNumber) + "' ");
+            List<DeptEntity> departments = deptQuery.list();
+            Transaction transaction = session.beginTransaction();
+            DeptEntity department = (DeptEntity) departments.get(0);
+            department.setDname(newName);
+            department.setLoc(newLoc);
+            session.update(department);
+            transaction.commit();
+
+        } catch (HibernateException hiex) {
+            System.err.println( hiex.getMessage() );
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateEmployee(int empNumber, String newName, String newJob, int newDepart) {
+        try (Session session = openSession()) {
+            // We obtain the employee instance to be modified
+            Query<EmployeeEntity> employeeQuery =
+                    session.createQuery("from com.aajaor2122.unit5.EmployeeEntity where empno='" +
+                            String.valueOf(empNumber) + "' ");
+            List<EmployeeEntity> employees = employeeQuery.list();
+            // We obtain also the department instance, to change the Department field in the employee
+            Query<DeptEntity> deptQuery =
+                    session.createQuery("from com.aajaor2122.unit5.DeptEntity where deptno='" +
+                            String.valueOf(newDepart) + "' ");
+            List<DeptEntity> departments = deptQuery.list();
+            Transaction transaction = session.beginTransaction();
+            EmployeeEntity employee = (EmployeeEntity) employees.get(0);
+            DeptEntity newDepartment = (DeptEntity) departments.get(0);
+            employee.setEname(newName);
+            employee.setJob(newJob);
+            employee.setDepartment(newDepartment);
+            session.update(employee);
+            transaction.commit();
+
+        } catch (HibernateException hiex) {
+            System.err.println( hiex.getMessage() );
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
