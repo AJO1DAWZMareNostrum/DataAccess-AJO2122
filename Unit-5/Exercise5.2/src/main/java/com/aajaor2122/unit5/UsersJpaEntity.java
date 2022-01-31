@@ -2,6 +2,7 @@ package com.aajaor2122.unit5;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "users", schema = "public", catalog = "Libraries")
@@ -10,6 +11,7 @@ public class UsersJpaEntity {
     private String name;
     private String surname;
     private Date birthdate;
+    private Set<LendingJpaEntity> lentBooks;
 
     @Id
     @Column(name = "code", nullable = false, length = 8)
@@ -73,5 +75,14 @@ public class UsersJpaEntity {
         result = 31 * result + (surname != null ? surname.hashCode() : 0);
         result = 31 * result + (birthdate != null ? birthdate.hashCode() : 0);
         return result;
+    }
+
+    @OneToMany(mappedBy = "borrower")
+    public Set<LendingJpaEntity> getLentBooks() {
+        return lentBooks;
+    }
+
+    public void setLentBooks(Set<LendingJpaEntity> lentBooks) {
+        this.lentBooks = lentBooks;
     }
 }

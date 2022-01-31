@@ -1,6 +1,7 @@
 package com.aajaor2122.unit5;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "books", schema = "public", catalog = "Libraries")
@@ -11,6 +12,7 @@ public class BooksJpaEntity {
     private String cover;
     private String outline;
     private String publisher;
+    private Set<LendingJpaEntity> borrowedBy;
 
     @Id
     @Column(name = "isbn", nullable = false, length = 13)
@@ -98,5 +100,14 @@ public class BooksJpaEntity {
         result = 31 * result + (outline != null ? outline.hashCode() : 0);
         result = 31 * result + (publisher != null ? publisher.hashCode() : 0);
         return result;
+    }
+
+    @OneToMany(mappedBy = "book")
+    public Set<LendingJpaEntity> getBorrowedBy() {
+        return borrowedBy;
+    }
+
+    public void setBorrowedBy(Set<LendingJpaEntity> borrowedBy) {
+        this.borrowedBy = borrowedBy;
     }
 }

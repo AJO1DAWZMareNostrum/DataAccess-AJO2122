@@ -9,6 +9,8 @@ public class LendingJpaEntity {
     private int id;
     private Date lendingdate;
     private Date returningdate;
+    private UsersJpaEntity borrower;
+    private BooksJpaEntity book;
 
     @Id
     @Column(name = "id", nullable = false)
@@ -61,5 +63,25 @@ public class LendingJpaEntity {
         result = 31 * result + (lendingdate != null ? lendingdate.hashCode() : 0);
         result = 31 * result + (returningdate != null ? returningdate.hashCode() : 0);
         return result;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "borrower", referencedColumnName = "code", nullable = false)
+    public UsersJpaEntity getBorrower() {
+        return borrower;
+    }
+
+    public void setBorrower(UsersJpaEntity borrower) {
+        this.borrower = borrower;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "book", referencedColumnName = "isbn", nullable = false)
+    public BooksJpaEntity getBook() {
+        return book;
+    }
+
+    public void setBook(BooksJpaEntity book) {
+        this.book = book;
     }
 }
