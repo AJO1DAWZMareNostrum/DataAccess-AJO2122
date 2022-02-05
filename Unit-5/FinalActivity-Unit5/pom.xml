@@ -61,7 +61,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.aajaor2122.unit5.finalactivityunit5/com.aajaor2122.unit5.finalactivityunit5.MainApplication
+                                com.aajaor2122.unit5.finalactivityunit5/com.aajaor2122.unit5.finalactivityunit5.LibraryMainApplication
                             </mainClass>
                         </configuration>
                     </execution>

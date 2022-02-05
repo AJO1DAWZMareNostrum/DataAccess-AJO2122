@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="completePane" prefHeight="389.0" prefWidth="415.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aajaor2122.unit5.finalactivityunit5.HelloController">
+<AnchorPane fx:id="completePane" prefHeight="389.0" prefWidth="415.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aajaor2122.unit5.finalactivityunit5.LibraryController">
    <children>
       <GridPane fx:id="topGridPanel" layoutY="-1.0" prefHeight="66.0" prefWidth="416.0" style="-fx-background-color: #0095dd;">
         <columnConstraints>
@@ -20,12 +20,12 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ImageView fx:id="userImage" fitHeight="67.0" fitWidth="85.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER">
+            <ImageView fx:id="userImage" fitHeight="67.0" fitWidth="85.0" onMouseClicked="#onUserButtonClicked" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER">
                <image>
                   <Image url="@user_icon_150670.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="bookImage" fitHeight="62.0" fitWidth="71.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER">
+            <ImageView fx:id="bookImage" fitHeight="62.0" fitWidth="71.0" onMouseClicked="#onBookButtonClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER">
                <image>
                   <Image url="@libro-abierto.png" />
                </image>
@@ -112,8 +112,8 @@
             </GridPane>
             <GridPane fx:id="bookMiddlePane" prefHeight="247.0" prefWidth="416.0" style="-fx-background-color: #D7E5F0;" visible="false">
               <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="202.0" minWidth="10.0" prefWidth="105.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="319.0" minWidth="10.0" prefWidth="311.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="202.0" minWidth="10.0" prefWidth="94.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="319.0" minWidth="10.0" prefWidth="302.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -133,7 +133,7 @@
                         <Font name="Calibri Bold" size="14.0" />
                      </font>
                   </Label>
-                  <Label fx:id="bookCopiesLabel" text="Copies:" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                  <Label fx:id="bookCopiesLabel" text="Nº Copies:" GridPane.halignment="CENTER" GridPane.rowIndex="2">
                      <font>
                         <Font name="Calibri Bold" size="14.0" />
                      </font>
@@ -152,7 +152,7 @@
                   <TextField fx:id="titleTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <TextField fx:id="outlineTextField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <TextField fx:id="publisherTextField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <Slider fx:id="bookCopiesSlider" max="10.0" showTickLabels="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="bookCopiesTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                </children>
                <padding>
                   <Insets left="10.0" right="10.0" />
@@ -175,7 +175,7 @@
                         <Font name="Calibri Bold" size="14.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="userCodeTextField" prefHeight="25.0" prefWidth="295.0" GridPane.columnIndex="1" />
+                  <TextField fx:id="userCodeTextField" disable="true" prefHeight="25.0" prefWidth="295.0" GridPane.columnIndex="1" />
                   <Label fx:id="userNameLabel" text="First Name:" GridPane.halignment="CENTER" GridPane.rowIndex="1">
                      <font>
                         <Font name="Calibri Bold" size="14.0" />
@@ -191,9 +191,9 @@
                         <Font name="Calibri Bold" size="14.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="fnameTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <TextField fx:id="surnameTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <DatePicker fx:id="birthdayDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <TextField fx:id="fnameTextField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="surnameTextField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <DatePicker fx:id="birthdayDatePicker" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                </children>
                <padding>
                   <Insets left="10.0" right="10.0" />
@@ -203,7 +203,7 @@
       </AnchorPane>
       <AnchorPane fx:id="bottomAnchorPane" layoutY="316.0" prefHeight="73.0" prefWidth="416.0">
          <children>
-            <GridPane fx:id="bottomEditPane" prefHeight="73.0" prefWidth="416.0" style="-fx-background-color: #0095dd;" visible="false">
+            <GridPane fx:id="bottomAcceptCancelPane" prefHeight="73.0" prefWidth="416.0" style="-fx-background-color: #0095dd;" visible="false">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -213,19 +213,19 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <ImageView fx:id="acceptEditImage" fitHeight="68.0" fitWidth="72.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER">
+                  <ImageView fx:id="acceptImage" fitHeight="68.0" fitWidth="72.0" onMouseClicked="#onAcceptClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER">
                      <image>
                         <Image url="@check-mark-white-on-black-circular-background_icon-icons.com_70768.png" />
                      </image>
                   </ImageView>
-                  <ImageView fx:id="cancelEditImage" fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
+                  <ImageView fx:id="cancelImage" fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
                      <image>
                         <Image url="@cross-mark-on-black-circle-background_icon-icons.com_70513.png" />
                      </image>
                   </ImageView>
                </children>
             </GridPane>
-            <GridPane fx:id="bottomMainPanel" prefHeight="73.0" prefWidth="416.0" style="-fx-background-color: #0095dd;">
+            <GridPane fx:id="bottomMainPane" prefHeight="73.0" prefWidth="416.0" style="-fx-background-color: #0095dd;">
               <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -235,7 +235,7 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <ImageView fx:id="searchImage" fitHeight="66.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER">
+                  <ImageView fx:id="searchImage" fitHeight="66.0" fitWidth="68.0" onMouseClicked="#onSearchButtonClicked" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER">
                      <image>
                         <Image url="@lupa-rounded10_82180.png" />
                      </image>
