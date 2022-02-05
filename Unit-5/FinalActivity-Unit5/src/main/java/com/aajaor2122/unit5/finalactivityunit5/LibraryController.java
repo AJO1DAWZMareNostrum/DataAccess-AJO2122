@@ -29,6 +29,16 @@ public class LibraryController {
     @FXML
     private Pane userMiddlePane;
     @FXML
+    private TextField isbnTextField;
+    @FXML
+    private TextField titleTextField;
+    @FXML
+    private TextField bookCopiesTextField;
+    @FXML
+    private TextField outlineTextField;
+    @FXML
+    private TextField publisherTextField;
+    @FXML
     private Pane bookMiddlePane;
     @FXML
     private Pane lendOrReturnPane;
@@ -39,12 +49,17 @@ public class LibraryController {
     @FXML
     private ImageView searchImage;
     @FXML
+    private ImageView addImage;
+    @FXML
+    private ImageView editImage;
+    @FXML
     private ImageView acceptImage;
     @FXML
     private ImageView cancelImage;
 
     // Variable to save the state of the program at different times
-    private String state;
+    // TODO: CAMBIAR estados al momento de CANCELAR las operaciones y volver a pantalla anterior
+    private String state = "waiting";
 
     @FXML
     protected void onHelloButtonClick() {
@@ -57,6 +72,7 @@ public class LibraryController {
         bookMiddlePane.setVisible(false);
         lendOrReturnPane.setVisible(false);
         bottomMainPane.setVisible(true);
+        bottomAcceptCancelPane.setVisible(false);
 
         // The fields are activated to allow introducing the user´s data
         userCodeTextField.setDisable(false);
@@ -73,6 +89,7 @@ public class LibraryController {
         bookMiddlePane.setVisible(true);
         lendOrReturnPane.setVisible(false);
         bottomMainPane.setVisible(true);
+        bottomAcceptCancelPane.setVisible(false);
 
 
     }
@@ -96,6 +113,19 @@ public class LibraryController {
 
         }
 
+        if (bookMiddlePane.isVisible()) {
+            state = "searchingBook";
+
+            isbnTextField.setDisable(false);
+            titleTextField.setDisable(true);
+            bookCopiesTextField.setDisable(true);
+            outlineTextField.setDisable(true);
+            publisherTextField.setDisable(true);
+            bottomMainPane.setVisible(false);
+            bottomAcceptCancelPane.setVisible(true);
+        }
+
+
     }
 
     @FXML
@@ -104,13 +134,44 @@ public class LibraryController {
 
         // Option selected for searching user in the database
         if (state == "searchingUser")
+            //TODO: Call method in controller for inserting User into DB
             userCodeTextField.setText("Accept working!");
+
+
     }
 
     @FXML
     protected void onCancelClicked() {
         //TODO: Implementar algún tipo de comportamiento más genérico, ya que al cancelar las operaciones
         // obtendremos resultado visuales más parecidos (y sin lógica como en Aceptar)
+        if (state == "searchingUser")
+            setUpUserUI();
+        if (state == "searchingBook")
+            setUpBookUI();
+    }
+
+    public void setUpUserUI() {
+        userMiddlePane.setVisible(true);
+        bookMiddlePane.setVisible(false);
+        lendOrReturnPane.setVisible(false);
+        bottomMainPane.setVisible(true);
+        bottomAcceptCancelPane.setVisible(false);
+    }
+
+    public void setUpBookUI() {
+        userMiddlePane.setVisible(false);
+        bookMiddlePane.setVisible(true);
+        lendOrReturnPane.setVisible(false);
+        bottomMainPane.setVisible(true);
+        bottomAcceptCancelPane.setVisible(false);
+    }
+
+    public void setUpLendReserveUI () {
+        userMiddlePane.setVisible(false);
+        bookMiddlePane.setVisible(false);
+        lendOrReturnPane.setVisible(true);
+        bottomMainPane.setVisible(false);
+        bottomAcceptCancelPane.setVisible(true);
     }
 
     /**
@@ -132,7 +193,7 @@ public class LibraryController {
      *
      * @param message  the message received by the program and showed in a MessageDialog
      */
-    public void resultSuccess(String message) {
+    public void resultMessage(String message) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setContentText(message);
 
