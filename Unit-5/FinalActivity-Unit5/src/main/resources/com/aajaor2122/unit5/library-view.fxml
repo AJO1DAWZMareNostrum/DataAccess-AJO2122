@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="completePane" prefHeight="389.0" prefWidth="415.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aajaor2122.unit5.finalactivityunit5.LibraryController">
+<AnchorPane fx:id="completePane" prefHeight="389.0" prefWidth="415.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aajaor2122.unit5.LibraryController">
    <children>
       <GridPane fx:id="topGridPanel" layoutY="-1.0" prefHeight="66.0" prefWidth="416.0" style="-fx-background-color: #0095dd;">
         <columnConstraints>
@@ -30,17 +30,17 @@
                   <Image url="@libro-abierto.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="lendBookImage" fitHeight="61.0" fitWidth="68.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
+            <ImageView fx:id="lendBookImage" fitHeight="61.0" fitWidth="68.0" onMouseClicked="#onLendBookClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
                <image>
                   <Image url="@prestarLibro.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="returnBookImage" fitHeight="60.0" fitWidth="74.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3" GridPane.halignment="CENTER">
+            <ImageView fx:id="returnBookImage" fitHeight="60.0" fitWidth="74.0" onMouseClicked="#onReturnBookClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3" GridPane.halignment="CENTER">
                <image>
                   <Image url="@devolverLibro.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="exitAppImage" fitHeight="66.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="4" GridPane.halignment="CENTER">
+            <ImageView fx:id="exitAppImage" fitHeight="66.0" fitWidth="84.0" onMouseClicked="#onExitAppClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="4" GridPane.halignment="CENTER">
                <image>
                   <Image url="@4115235-exit-logout-sign-out_114030.png" />
                </image>
@@ -218,7 +218,7 @@
                         <Image url="@check-mark-white-on-black-circular-background_icon-icons.com_70768.png" />
                      </image>
                   </ImageView>
-                  <ImageView fx:id="cancelImage" fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
+                  <ImageView fx:id="cancelImage" fitHeight="70.0" fitWidth="70.0" onMouseClicked="#onCancelClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
                      <image>
                         <Image url="@cross-mark-on-black-circle-background_icon-icons.com_70513.png" />
                      </image>
@@ -240,12 +240,12 @@
                         <Image url="@lupa-rounded10_82180.png" />
                      </image>
                   </ImageView>
-                  <ImageView fx:id="addImage" fitHeight="64.0" fitWidth="69.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER">
+                  <ImageView fx:id="addImage" fitHeight="64.0" fitWidth="69.0" onMouseClicked="#onAddButtonClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER">
                      <image>
                         <Image url="@plus_icon-icons.com_69476.png" />
                      </image>
                   </ImageView>
-                  <ImageView fx:id="editImage" fitHeight="65.0" fitWidth="67.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
+                  <ImageView fx:id="editImage" fitHeight="65.0" fitWidth="67.0" onMouseClicked="#onEditButtonClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
                      <image>
                         <Image url="@editRound_104762.png" />
                      </image>

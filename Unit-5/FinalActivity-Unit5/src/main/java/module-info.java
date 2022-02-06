@@ -1,9 +1,11 @@
-module com.aajaor2122.unit5.finalactivityunit5 {
+module com.aajaor2122.unit5 {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
+    requires java.persistence;
+    requires java.sql;
 
 
-    opens com.aajaor2122.unit5.finalactivityunit5 to javafx.fxml;
-    exports com.aajaor2122.unit5.finalactivityunit5;
+    exports com.aajaor2122.unit5;
+    opens com.aajaor2122.unit5 to javafx.fxml;
 }

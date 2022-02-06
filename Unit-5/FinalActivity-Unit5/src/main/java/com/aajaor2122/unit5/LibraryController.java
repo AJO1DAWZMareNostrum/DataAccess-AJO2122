@@ -1,4 +1,4 @@
-package com.aajaor2122.unit5.finalactivityunit5;
+package com.aajaor2122.unit5;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -59,7 +59,20 @@ public class LibraryController {
 
     // Variable to save the state of the program at different times
     // TODO: CAMBIAR estados al momento de CANCELAR las operaciones y volver a pantalla anterior
-    private String state = "waiting";
+    //private String state = "waiting";
+    // ENUM to allocate all the possible states of the application at different times
+    enum State {
+        WAITING,
+        SEARCHINGUSER,
+        SEARCHINGBOOK,
+        ADDINGUSER,
+        ADDINGBOOK,
+        EDITINGUSER,
+        EDITINGBOOK,
+        USERSEARCHSUCCESS,
+        BOOKSEARCHSUCCESS
+    }
+    State state = State.WAITING;
 
     @FXML
     protected void onHelloButtonClick() {
@@ -85,13 +98,22 @@ public class LibraryController {
 
     @FXML
     protected void onBookButtonClicked() {
-        userMiddlePane.setVisible(false);
-        bookMiddlePane.setVisible(true);
-        lendOrReturnPane.setVisible(false);
-        bottomMainPane.setVisible(true);
-        bottomAcceptCancelPane.setVisible(false);
+        setUpBookUI();
+    }
 
+    @FXML
+    protected void onLendBookClicked() {
+        setUpLendReturnUI();
+    }
 
+    @FXML
+    protected void onReturnBookClicked() {
+        setUpLendReturnUI();
+    }
+
+    @FXML
+    protected void onExitAppClicked() {
+        System.exit(0);
     }
 
     @FXML
@@ -100,7 +122,7 @@ public class LibraryController {
         // Correcto: testeado y funciona
         if (userMiddlePane.isVisible()) {
             // We update the state of the application
-            state = "searchingUser";
+            state = State.SEARCHINGUSER;
 
             // We left only the user code field to make non-exact User´s searches
             userCodeTextField.setDisable(false);
@@ -114,7 +136,7 @@ public class LibraryController {
         }
 
         if (bookMiddlePane.isVisible()) {
-            state = "searchingBook";
+            state = State.SEARCHINGBOOK;
 
             isbnTextField.setDisable(false);
             titleTextField.setDisable(true);
@@ -124,8 +146,45 @@ public class LibraryController {
             bottomMainPane.setVisible(false);
             bottomAcceptCancelPane.setVisible(true);
         }
+    }
 
+    @FXML
+    protected void onAddButtonClicked() {
 
+        if (userMiddlePane.isVisible()) {
+            state = State.ADDINGUSER;
+
+            userCodeTextField.setDisable(false);
+            fnameTextField.setDisable(false);
+            surnameTextField.setDisable(false);
+            birthdayDatePicker.setDisable(false);
+            bottomMainPane.setVisible(false);
+            bottomAcceptCancelPane.setVisible(true);
+        }
+
+        if (bookMiddlePane.isVisible()) {
+            state = State.ADDINGBOOK;
+
+            isbnTextField.setDisable(false);
+            titleTextField.setDisable(false);
+            bookCopiesTextField.setDisable(false);
+            outlineTextField.setDisable(false);
+            publisherTextField.setDisable(false);
+            bottomMainPane.setVisible(false);
+            bottomAcceptCancelPane.setVisible(true);
+        }
+    }
+
+    @FXML
+    protected void onEditButtonClicked() {
+        if (state != State.USERSEARCHSUCCESS || state != State.BOOKSEARCHSUCCESS)
+            resultMessage("You need to make a succesful search first, before you´re allowed to edit data");
+
+        // TODO: Check that this comprobation (length is bigger than 0) works in this specific case
+        // Alternativa: comprobar estado SearchingUser antes de permitir
+        if (userMiddlePane.isVisible() && userCodeTextField.getLength() > 0) {
+
+        }
     }
 
     @FXML
@@ -133,7 +192,7 @@ public class LibraryController {
         // Important method, that makes the link with the LibraryModel class, calling its DB methods
 
         // Option selected for searching user in the database
-        if (state == "searchingUser")
+        if (state == State.SEARCHINGUSER)
             //TODO: Call method in controller for inserting User into DB
             userCodeTextField.setText("Accept working!");
 
@@ -142,11 +201,10 @@ public class LibraryController {
 
     @FXML
     protected void onCancelClicked() {
-        //TODO: Implementar algún tipo de comportamiento más genérico, ya que al cancelar las operaciones
-        // obtendremos resultado visuales más parecidos (y sin lógica como en Aceptar)
-        if (state == "searchingUser")
+        if (state == State.SEARCHINGUSER || state == State.ADDINGUSER || state == State.EDITINGUSER)
             setUpUserUI();
-        if (state == "searchingBook")
+
+        if (state == State.SEARCHINGBOOK || state == State.ADDINGBOOK || state == State.EDITINGBOOK)
             setUpBookUI();
     }
 
@@ -156,6 +214,7 @@ public class LibraryController {
         lendOrReturnPane.setVisible(false);
         bottomMainPane.setVisible(true);
         bottomAcceptCancelPane.setVisible(false);
+        state = State.WAITING;
     }
 
     public void setUpBookUI() {
@@ -164,14 +223,16 @@ public class LibraryController {
         lendOrReturnPane.setVisible(false);
         bottomMainPane.setVisible(true);
         bottomAcceptCancelPane.setVisible(false);
+        state = State.WAITING;
     }
 
-    public void setUpLendReserveUI () {
+    public void setUpLendReturnUI () {
         userMiddlePane.setVisible(false);
         bookMiddlePane.setVisible(false);
         lendOrReturnPane.setVisible(true);
         bottomMainPane.setVisible(false);
         bottomAcceptCancelPane.setVisible(true);
+        state = State.WAITING;
     }
 
     /**
@@ -186,6 +247,13 @@ public class LibraryController {
 
         a.show();
     }
+
+    //TODO: activar Hibernate
+    //public void reportError(HibernateException hex) {
+    //    JOptionPane.showMessageDialog(null, hex);
+
+    //   hex.printStackTrace();
+    //}
 
     /**
      *  Method that receives an success message from some part of the program, and allows to

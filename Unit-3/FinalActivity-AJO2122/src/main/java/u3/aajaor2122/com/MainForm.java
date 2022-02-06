@@ -276,13 +276,6 @@ public class MainForm {
         ex.printStackTrace();
     }
 
-    //TODO: activar Hibernate
-    //public void reportError(HibernateException hex) {
-    //    JOptionPane.showMessageDialog(null, hex);
-
-    //   hex.printStackTrace();
-    //}
-
     /**
      *  Method that receives an success message from some part of the program, and allows to
      *  show it into a MessageDialog to the program´s user
