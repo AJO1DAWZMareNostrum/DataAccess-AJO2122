@@ -177,8 +177,13 @@ public class LibraryController {
 
     @FXML
     protected void onEditButtonClicked() {
-        if (state != State.USERSEARCHSUCCESS || state != State.BOOKSEARCHSUCCESS)
+        if (state != State.USERSEARCHSUCCESS || state != State.BOOKSEARCHSUCCESS) {
             resultMessage("You need to make a succesful search first, before you´re allowed to edit data");
+        } else if (state == State.USERSEARCHSUCCESS) {
+            fnameTextField.setDisable(false);
+            surnameTextField.setDisable(false);
+        }
+
 
         // TODO: Check that this comprobation (length is bigger than 0) works in this specific case
         // Alternativa: comprobar estado SearchingUser antes de permitir
@@ -193,18 +198,43 @@ public class LibraryController {
 
         // Option selected for searching user in the database
         if (state == State.SEARCHINGUSER)
-            //TODO: Call method in controller for inserting User into DB
-            userCodeTextField.setText("Accept working!");
+            try {
+                String userCode;
+                UsersJpaEntity user;
+                if (userCodeTextField.getLength() > 0) {
+                    userCode = userCodeTextField.getText();
+                    user = LibraryModel.getUserByCode(userCode);
+
+                    if (user != null) {
+                        fnameTextField.setText(user.getName());
+                        surnameTextField.setText(user.getSurname());
+                    } else {
+                        resultMessage("User has not been found, or incorrect code introduced.");
+                    }
+
+
+                } else
+                    resultMessage("You need to provide a user code to make a search");
+
+            } catch (Exception e) {
+                reportError(e);
+            }
 
 
     }
 
     @FXML
     protected void onCancelClicked() {
-        if (state == State.SEARCHINGUSER || state == State.ADDINGUSER || state == State.EDITINGUSER)
+        if (state == State.SEARCHINGUSER || state == State.ADDINGUSER || state == State.EDITINGUSER) {
             setUpUserUI();
+            //TODO: testear y quitar "clear..." si no interesa en tiempo de ejecución - solución temporal
+            clearUserFields();
+        }
 
-        if (state == State.SEARCHINGBOOK || state == State.ADDINGBOOK || state == State.EDITINGBOOK)
+        if (state == State.SEARCHINGBOOK || state == State.ADDINGBOOK || state == State.EDITINGBOOK) {
+            setUpBookUI();
+            clearBookFields();
+        }
             setUpBookUI();
     }
 
@@ -235,6 +265,22 @@ public class LibraryController {
         state = State.WAITING;
     }
 
+    public void clearUserFields() {
+        userCodeTextField.setText("");
+        fnameTextField.setText("");
+        surnameTextField.setText("");
+        state = State.WAITING;
+    }
+
+    public void clearBookFields() {
+        isbnTextField.setText("");
+        titleTextField.setText("");
+        bookCopiesTextField.setText("");
+        outlineTextField.setText("");
+        publisherTextField.setText("");
+        state = State.WAITING;
+    }
+
     /**
      *  Method that receives an exception from some part of the program, and allows to
      *  show it into a MessageDialog to the program´s user
@@ -249,10 +295,11 @@ public class LibraryController {
     }
 
     //TODO: activar Hibernate
-    //public void reportError(HibernateException hex) {
-    //    JOptionPane.showMessageDialog(null, hex);
-
-    //   hex.printStackTrace();
+    //public void reportHibernateError(HibernateException hex) {
+    //    Alert a = new Alert(Alert.AlertType.ERROR);
+    //        a.setContentText(hex.toString());
+    //
+    //        a.show();
     //}
 
     /**
