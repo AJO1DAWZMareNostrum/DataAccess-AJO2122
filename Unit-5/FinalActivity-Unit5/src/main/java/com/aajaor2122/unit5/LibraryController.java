@@ -9,6 +9,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
+import java.sql.Date;
+import java.time.LocalDate;
+
 /**
  *  CONTROLLER class - related to every aspect of the graphical interface: controls and set up
  *  every element of the program and relates it to the Database methods in the program
@@ -182,6 +185,11 @@ public class LibraryController {
         } else if (state == State.USERSEARCHSUCCESS) {
             fnameTextField.setDisable(false);
             surnameTextField.setDisable(false);
+        } else if (state == State.BOOKSEARCHSUCCESS) {
+            titleTextField.setDisable(false);
+            bookCopiesTextField.setDisable(false);
+            outlineTextField.setDisable(false);
+            publisherTextField.setDisable(false);
         }
 
 
@@ -197,7 +205,7 @@ public class LibraryController {
         // Important method, that makes the link with the LibraryModel class, calling its DB methods
 
         // Option selected for searching user in the database
-        if (state == State.SEARCHINGUSER)
+        if (state == State.SEARCHINGUSER) {
             try {
                 String userCode;
                 UsersJpaEntity user;
@@ -208,18 +216,97 @@ public class LibraryController {
                     if (user != null) {
                         fnameTextField.setText(user.getName());
                         surnameTextField.setText(user.getSurname());
+                        state = State.USERSEARCHSUCCESS;
                     } else {
-                        resultMessage("User has not been found, or incorrect code introduced.");
+                        //TODO: este mensaje NO llega a mostrarse - arreglar la gestión de excepciones
+                        resultMessage("User has NOT been found, or incorrect code introduced.");
                     }
-
-
                 } else
                     resultMessage("You need to provide a user code to make a search");
-
             } catch (Exception e) {
                 reportError(e);
             }
+        }
 
+        // Option selected for searching book in the database
+        if (state == State.SEARCHINGBOOK) {
+            try {
+                String bookISBN;
+                BooksJpaEntity book;
+                if (isbnTextField.getLength() > 0) {
+                    bookISBN = isbnTextField.getText();
+                    book = LibraryModel.getBookByIsbn(bookISBN);
+
+                    if (book != null) {
+                        titleTextField.setText(book.getTitle());
+                        bookCopiesTextField.setText(book.getCopies().toString());
+                        outlineTextField.setText(book.getOutline());
+                        publisherTextField.setText(book.getPublisher());
+                        state = State.BOOKSEARCHSUCCESS;
+                    } else {
+                        //TODO: este mensaje NO llega a mostrarse - arreglar la gestión de excepciones
+                        resultMessage("Book has NOT been found, or incorrect isbn introduced.");
+                    }
+                } else
+                    resultMessage("You need to provide a user code to make a search");
+            } catch (Exception e) {
+                reportError(e);
+            }
+        }
+
+        // Option selected for adding a user into the database
+        if (state == State.ADDINGUSER) {
+            try {
+                //TODO: check that the DatePicker restriction is working
+                if (userCodeTextField.getLength() > 0 && fnameTextField.getLength() > 0 &&
+                    surnameTextField.getLength() > 0 && birthdayDatePicker.getValue() != null) {
+
+                    String code, fname, surname;
+                    LocalDate birthdayRaw;
+                    Date birthday;
+
+                    code = userCodeTextField.getText();
+                    fname = fnameTextField.getText();
+                    surname = surnameTextField.getText();
+                    birthdayRaw = birthdayDatePicker.getValue();
+                    birthday = Date.valueOf(birthdayRaw);
+
+                    LibraryModel.insertUser(code, fname, surname, birthday);
+
+                } else {
+                    resultMessage("All field must be introduced before adding a new User.");
+                }
+            } catch (Exception e) {
+                reportError(e);
+            }
+        }
+
+        // Option selected for adding a book into the database
+        if (state == State.ADDINGBOOK) {
+            try {
+                //TODO: implement logic for inserting user into DB
+                if (isbnTextField.getLength() > 0 && titleTextField.getLength() > 0 &&
+                        bookCopiesTextField.getLength() > 0 && outlineTextField.getLength() > 0 &&
+                        publisherTextField.getLength() > 0) {
+
+                    String isbn, title, outline, publisher;
+                    int bookCopies;
+
+                    isbn = isbnTextField.getText();
+                    title = titleTextField.getText();
+                    bookCopies = Integer.parseInt(bookCopiesTextField.getText());
+                    outline = outlineTextField.getText();
+                    publisher = publisherTextField.getText();
+
+                    LibraryModel.insertBook(isbn, title, bookCopies, outline, publisher);
+
+                } else {
+                    resultMessage("All field must be introduced before adding a new Book.");
+                }
+            } catch (Exception e) {
+                reportError(e);
+            }
+        }
 
     }
 
@@ -235,7 +322,7 @@ public class LibraryController {
             setUpBookUI();
             clearBookFields();
         }
-            setUpBookUI();
+
     }
 
     public void setUpUserUI() {
@@ -287,7 +374,7 @@ public class LibraryController {
      *
      * @param ex  the exception received by the program and showed in a MessageDialog
      */
-    public void reportError(Exception ex) {
+    public static void reportError(Exception ex) {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setContentText(ex.toString());
 
@@ -308,7 +395,7 @@ public class LibraryController {
      *
      * @param message  the message received by the program and showed in a MessageDialog
      */
-    public void resultMessage(String message) {
+    public static void resultMessage(String message) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setContentText(message);
 
