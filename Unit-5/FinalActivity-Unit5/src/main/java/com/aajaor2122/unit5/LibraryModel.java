@@ -108,4 +108,48 @@ public class LibraryModel {
         }
     }
 
+    public static void editUser(String code, String name, String surname) {
+        try (Session session = openSession()) {
+            Query<UsersJpaEntity> usersQuery =
+                    session.createQuery("from com.aajaor2122.unit5.UsersJpaEntity where code='" +
+                            String.valueOf(code) + "' ");
+            List<UsersJpaEntity> users = usersQuery.list();
+            Transaction transaction = session.beginTransaction();
+            UsersJpaEntity user = (UsersJpaEntity) users.get(0);
+            user.setName(name);
+            user.setSurname(surname);
+            session.update(user);
+            transaction.commit();
+
+            LibraryController.resultMessage("The User has been updated successfully.");
+        } catch (Exception e) {
+        LibraryController.reportError(e);
+        }
+    }
+
+    public static void editBook(String isbn, String title, int copies, String outline, String publisher) {
+        try (Session session = openSession()) {
+            Query<BooksJpaEntity> booksQuery =
+                    session.createQuery("from com.aajaor2122.unit5.BooksJpaEntity where isbn='" +
+                            String.valueOf(isbn) + "' ");
+            List<BooksJpaEntity> books = booksQuery.list();
+            Transaction transaction = session.beginTransaction();
+            BooksJpaEntity book = (BooksJpaEntity) books.get(0);
+            book.setTitle(title);
+            book.setCopies(copies);
+            book.setOutline(outline);
+            book.setPublisher(publisher);
+            session.update(book);
+            transaction.commit();
+
+            LibraryController.resultMessage("The Book has been updated successfully.");
+        } catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+    }
+
+    public static void insertLending() {
+
+    }
+
 }

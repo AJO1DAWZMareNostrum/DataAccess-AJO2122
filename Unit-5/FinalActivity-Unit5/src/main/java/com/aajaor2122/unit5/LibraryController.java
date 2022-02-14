@@ -43,6 +43,19 @@ public class LibraryController {
     private TextField publisherTextField;
     @FXML
     private Pane bookMiddlePane;
+    // Lendings/borrowings panes
+    @FXML
+    private TextField userSearchTextField;
+    @FXML
+    private ImageView userSearchImage;
+    @FXML
+    private TextField userResultTextField;
+    @FXML
+    private TextField bookSearchTextField;
+    @FXML
+    private ImageView bookSearchImage;
+    @FXML
+    private TextField bookResultTextField;
     @FXML
     private Pane lendOrReturnPane;
     @FXML
@@ -73,7 +86,9 @@ public class LibraryController {
         EDITINGUSER,
         EDITINGBOOK,
         USERSEARCHSUCCESS,
-        BOOKSEARCHSUCCESS
+        BOOKSEARCHSUCCESS,
+        LENDING,
+        BORROWING
     }
     State state = State.WAITING;
 
@@ -84,11 +99,8 @@ public class LibraryController {
 
     @FXML
     protected void onUserButtonClicked() {
-        userMiddlePane.setVisible(true);
-        bookMiddlePane.setVisible(false);
-        lendOrReturnPane.setVisible(false);
-        bottomMainPane.setVisible(true);
-        bottomAcceptCancelPane.setVisible(false);
+        setUpUserUI(State.WAITING);
+        clearUserFields();
 
         // The fields are activated to allow introducing the user´s data
         userCodeTextField.setDisable(false);
@@ -96,12 +108,12 @@ public class LibraryController {
         surnameTextField.setDisable(false);
         birthdayDatePicker.setDisable(false);
 
-
     }
 
     @FXML
     protected void onBookButtonClicked() {
-        setUpBookUI();
+        setUpBookUI(State.WAITING);
+        clearBookFields();
     }
 
     @FXML
@@ -180,29 +192,36 @@ public class LibraryController {
 
     @FXML
     protected void onEditButtonClicked() {
-        if (state != State.USERSEARCHSUCCESS || state != State.BOOKSEARCHSUCCESS) {
+        //TODO: arreglar este warning
+        if (state != State.USERSEARCHSUCCESS && state != State.BOOKSEARCHSUCCESS) {
             resultMessage("You need to make a succesful search first, before you´re allowed to edit data");
-        } else if (state == State.USERSEARCHSUCCESS) {
+            return;
+        }
+
+        if (state == State.USERSEARCHSUCCESS) {
+            state = State.EDITINGUSER;
+
             fnameTextField.setDisable(false);
             surnameTextField.setDisable(false);
-        } else if (state == State.BOOKSEARCHSUCCESS) {
+            birthdayDatePicker.setDisable(false);
+        } else {
+            state = State.EDITINGBOOK;
+
             titleTextField.setDisable(false);
             bookCopiesTextField.setDisable(false);
             outlineTextField.setDisable(false);
             publisherTextField.setDisable(false);
         }
 
+        bottomMainPane.setVisible(false);
+        bottomAcceptCancelPane.setVisible(true);
 
-        // TODO: Check that this comprobation (length is bigger than 0) works in this specific case
-        // Alternativa: comprobar estado SearchingUser antes de permitir
-        if (userMiddlePane.isVisible() && userCodeTextField.getLength() > 0) {
-
-        }
     }
 
     @FXML
     protected void onAcceptClicked() {
         // Important method, that makes the link with the LibraryModel class, calling its DB methods
+        // TODO - Convert these if´s into a Switch expression
 
         // Option selected for searching user in the database
         if (state == State.SEARCHINGUSER) {
@@ -216,7 +235,7 @@ public class LibraryController {
                     if (user != null) {
                         fnameTextField.setText(user.getName());
                         surnameTextField.setText(user.getSurname());
-                        state = State.USERSEARCHSUCCESS;
+                        setUpUserUI(State.USERSEARCHSUCCESS);
                     } else {
                         //TODO: este mensaje NO llega a mostrarse - arreglar la gestión de excepciones
                         resultMessage("User has NOT been found, or incorrect code introduced.");
@@ -242,7 +261,7 @@ public class LibraryController {
                         bookCopiesTextField.setText(book.getCopies().toString());
                         outlineTextField.setText(book.getOutline());
                         publisherTextField.setText(book.getPublisher());
-                        state = State.BOOKSEARCHSUCCESS;
+                        setUpBookUI(State.BOOKSEARCHSUCCESS);
                     } else {
                         //TODO: este mensaje NO llega a mostrarse - arreglar la gestión de excepciones
                         resultMessage("Book has NOT been found, or incorrect isbn introduced.");
@@ -272,6 +291,8 @@ public class LibraryController {
                     birthday = Date.valueOf(birthdayRaw);
 
                     LibraryModel.insertUser(code, fname, surname, birthday);
+                    setUpUserUI(State.WAITING);
+                    clearUserFields();
 
                 } else {
                     resultMessage("All field must be introduced before adding a new User.");
@@ -284,7 +305,6 @@ public class LibraryController {
         // Option selected for adding a book into the database
         if (state == State.ADDINGBOOK) {
             try {
-                //TODO: implement logic for inserting user into DB
                 if (isbnTextField.getLength() > 0 && titleTextField.getLength() > 0 &&
                         bookCopiesTextField.getLength() > 0 && outlineTextField.getLength() > 0 &&
                         publisherTextField.getLength() > 0) {
@@ -299,48 +319,99 @@ public class LibraryController {
                     publisher = publisherTextField.getText();
 
                     LibraryModel.insertBook(isbn, title, bookCopies, outline, publisher);
+                    setUpBookUI(State.WAITING);
+                    clearBookFields();
 
                 } else {
-                    resultMessage("All field must be introduced before adding a new Book.");
+                    resultMessage("All fields must be introduced before adding a new Book.");
                 }
             } catch (Exception e) {
                 reportError(e);
             }
         }
 
+        if (state == State.EDITINGUSER) {
+            try {
+                if (userCodeTextField.getLength() > 0 && fnameTextField.getLength() > 0 &&
+                        surnameTextField.getLength() > 0) {
+                    String code, fname, surname;
+
+                    code = userCodeTextField.getText();
+                    fname = fnameTextField.getText();
+                    surname = surnameTextField.getText();
+                    LibraryModel.editUser(code, fname, surname);
+                    setUpUserUI(State.WAITING);
+                    clearUserFields();
+
+                } else {
+                    resultMessage("New name and surname must be introduced before editing a User, and a existing " +
+                            "user code must be choosed.");
+                }
+
+            } catch (Exception e) {
+                reportError(e);
+            }
+        }
+
+        if (state == State.EDITINGBOOK) {
+            try {
+                if (isbnTextField.getLength() > 0 && titleTextField.getLength() > 0 &&
+                        bookCopiesTextField.getLength() > 0 && outlineTextField.getLength() > 0 &&
+                        publisherTextField.getLength() > 0) {
+
+                    String isbn, title, outline, publisher;
+                    int bookCopies;
+
+                    isbn = isbnTextField.getText();
+                    title = titleTextField.getText();
+                    bookCopies = Integer.parseInt(bookCopiesTextField.getText());
+                    outline = outlineTextField.getText();
+                    publisher = publisherTextField.getText();
+
+                    LibraryModel.editBook(isbn, title, bookCopies, outline, publisher);
+                    setUpBookUI(State.WAITING);
+                    clearBookFields();
+                }
+            } catch (Exception ex) {
+                reportError(ex);
+            }
+        }
+
+        //if (state == State.)
+
     }
 
     @FXML
     protected void onCancelClicked() {
-        if (state == State.SEARCHINGUSER || state == State.ADDINGUSER || state == State.EDITINGUSER) {
-            setUpUserUI();
+        if (state == State.SEARCHINGUSER || state == State.ADDINGUSER || state == State.EDITINGUSER ||
+            state == State.USERSEARCHSUCCESS) {
+            setUpUserUI(State.WAITING);
             //TODO: testear y quitar "clear..." si no interesa en tiempo de ejecución - solución temporal
             clearUserFields();
-        }
-
-        if (state == State.SEARCHINGBOOK || state == State.ADDINGBOOK || state == State.EDITINGBOOK) {
-            setUpBookUI();
+        } else if (state == State.SEARCHINGBOOK || state == State.ADDINGBOOK || state == State.EDITINGBOOK ||
+                state == State.BOOKSEARCHSUCCESS) {
+            setUpBookUI(State.WAITING);
             clearBookFields();
         }
 
     }
 
-    public void setUpUserUI() {
+    public void setUpUserUI(State newState) {
         userMiddlePane.setVisible(true);
         bookMiddlePane.setVisible(false);
         lendOrReturnPane.setVisible(false);
         bottomMainPane.setVisible(true);
         bottomAcceptCancelPane.setVisible(false);
-        state = State.WAITING;
+        state = newState;
     }
 
-    public void setUpBookUI() {
+    public void setUpBookUI(State newState) {
         userMiddlePane.setVisible(false);
         bookMiddlePane.setVisible(true);
         lendOrReturnPane.setVisible(false);
         bottomMainPane.setVisible(true);
         bottomAcceptCancelPane.setVisible(false);
-        state = State.WAITING;
+        state = newState;
     }
 
     public void setUpLendReturnUI () {
@@ -356,6 +427,7 @@ public class LibraryController {
         userCodeTextField.setText("");
         fnameTextField.setText("");
         surnameTextField.setText("");
+        birthdayDatePicker.setAccessibleText("");
         state = State.WAITING;
     }
 
@@ -380,14 +452,6 @@ public class LibraryController {
 
         a.show();
     }
-
-    //TODO: activar Hibernate
-    //public void reportHibernateError(HibernateException hex) {
-    //    Alert a = new Alert(Alert.AlertType.ERROR);
-    //        a.setContentText(hex.toString());
-    //
-    //        a.show();
-    //}
 
     /**
      *  Method that receives an success message from some part of the program, and allows to
