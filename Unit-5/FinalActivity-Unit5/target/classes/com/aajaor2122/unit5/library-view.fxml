@@ -74,7 +74,7 @@
                         <Insets top="25.0" />
                      </GridPane.margin>
                   </TextField>
-                  <ImageView fx:id="userSearchImage" fitHeight="48.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.valignment="TOP">
+                  <ImageView fx:id="userSearchImage" fitHeight="48.0" fitWidth="45.0" onMouseClicked="#onSearchUserClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.valignment="TOP">
                      <GridPane.margin>
                         <Insets right="15.0" top="15.0" />
                      </GridPane.margin>
@@ -97,7 +97,7 @@
                         <Insets bottom="25.0" />
                      </GridPane.margin>
                   </TextField>
-                  <ImageView fx:id="bookSearchImage" fitHeight="48.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                  <ImageView fx:id="bookSearchImage" fitHeight="48.0" fitWidth="45.0" onMouseClicked="#onSearchBookClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP">
                      <GridPane.margin>
                         <Insets right="15.0" top="15.0" />
                      </GridPane.margin>

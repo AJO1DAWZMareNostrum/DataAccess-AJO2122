@@ -1,14 +1,12 @@
 package com.aajaor2122.unit5;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class LibraryModel {
@@ -36,7 +34,7 @@ public class LibraryModel {
         return session;
     }
 
-    public static UsersJpaEntity getUserByCode(String code) throws Exception {
+    public static UsersJpaEntity getUserByCode(String code) {
         UsersJpaEntity user = null;
         try (Session session = openSession()) {
             Query<UsersJpaEntity> userQuery =
@@ -71,6 +69,53 @@ public class LibraryModel {
         }
 
         return book;
+    }
+
+    //CORRECTO: ahora si que funciona
+    public static int getNumberTotalBorrowedCopies(String isbn) {
+        BooksJpaEntity book = null;
+        int copiesLendedNow = 0;
+        try (Session session = openSession()) {
+            Query<BooksJpaEntity> booksQuery =
+                    session.createQuery("from com.aajaor2122.unit5.BooksJpaEntity where isbn='" +
+                            String.valueOf(isbn) + "' ");
+            List<BooksJpaEntity> books = booksQuery.list();
+            book = (BooksJpaEntity) books.get(0);
+
+            copiesLendedNow = book.getBorrowedBy().size();
+
+            if (book == null)
+                LibraryController.resultMessage("The ISBN of the book is NOT correct.");
+
+        } catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+
+        return copiesLendedNow;
+    }
+
+    //TODO: da un error de ArrayIndexOutOfBoundsException, intentar solucionarlo
+    public static int getUserBooksBorrowedNow(String code) {
+        UsersJpaEntity user = null;
+        int booksBorrowedNow = 0;
+
+        try (Session session = openSession()) {
+            Query<UsersJpaEntity> usersQuery =
+                    session.createQuery("from com.aajaor2122.unit5.UsersJpaEntity where code='" +
+                            String.valueOf(code) + "' ");
+            List<UsersJpaEntity> users = usersQuery.list();
+            user = (UsersJpaEntity) users.get(0);
+
+            booksBorrowedNow = user.getLentBooks().size();
+
+            if (user == null)
+                LibraryController.resultMessage("The code of the User is NOT correct.");
+
+        } catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+
+        return booksBorrowedNow;
     }
 
     public static void insertUser(String code, String name, String surname, Date birthday) {

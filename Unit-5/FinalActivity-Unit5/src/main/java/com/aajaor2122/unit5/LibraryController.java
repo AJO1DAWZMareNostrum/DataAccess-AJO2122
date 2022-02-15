@@ -88,7 +88,11 @@ public class LibraryController {
         USERSEARCHSUCCESS,
         BOOKSEARCHSUCCESS,
         LENDING,
-        BORROWING
+        RETURNING,
+        SEARCHEDUSERLENDING,
+        SEARCHEDBOOKLENDING,
+        SEARCHEDUSERRETURNING,
+        SEARCHEDBOOKRETURNING
     }
     State state = State.WAITING;
 
@@ -116,14 +120,17 @@ public class LibraryController {
         clearBookFields();
     }
 
+    // TODO: he cambiado los estados, pasar a State.WAITING si esto da errores
     @FXML
     protected void onLendBookClicked() {
-        setUpLendReturnUI();
+        setUpLendReturnUI(State.LENDING);
+        clearLendOrReturnFields();
     }
 
     @FXML
     protected void onReturnBookClicked() {
-        setUpLendReturnUI();
+        setUpLendReturnUI(State.RETURNING);
+        clearLendOrReturnFields();
     }
 
     @FXML
@@ -192,7 +199,6 @@ public class LibraryController {
 
     @FXML
     protected void onEditButtonClicked() {
-        //TODO: arreglar este warning
         if (state != State.USERSEARCHSUCCESS && state != State.BOOKSEARCHSUCCESS) {
             resultMessage("You need to make a succesful search first, before you´re allowed to edit data");
             return;
@@ -216,6 +222,55 @@ public class LibraryController {
         bottomMainPane.setVisible(false);
         bottomAcceptCancelPane.setVisible(true);
 
+    }
+
+    @FXML
+    protected void onSearchUserClicked() {
+        try {
+            String userCode, fullName;
+            UsersJpaEntity user;
+            if (userSearchTextField.getLength() > 0) {
+                userCode = userSearchTextField.getText();
+                user = LibraryModel.getUserByCode(userCode);
+
+                if (user != null) {
+                    fullName = user.getName() + " " + user.getSurname();
+                    userResultTextField.setText(fullName);
+
+                    state = State.SEARCHEDUSERLENDING;
+                    bottomMainPane.setVisible(false);
+                    bottomAcceptCancelPane.setVisible(true);
+                }
+            } else
+                resultMessage("User has NOT been found, or incorrect code introduced.");
+        } catch (Exception e) {
+            reportError(e);
+        }
+    }
+
+    @FXML
+    protected void onSearchBookClicked() {
+        try {
+            //TODO: bloque de código CORRECTO, no borrar
+            String isbn, title;
+            BooksJpaEntity book;
+            if (bookSearchTextField.getLength() > 0) {
+                isbn = bookSearchTextField.getText();
+                book = LibraryModel.getBookByIsbn(isbn);
+
+                if (book != null) {
+                    title = book.getTitle();
+                    bookResultTextField.setText(title);
+
+                    state = State.SEARCHEDBOOKLENDING;
+                    bottomMainPane.setVisible(false);
+                    bottomAcceptCancelPane.setVisible(true);
+                }
+            } else
+                resultMessage("Book has NOT been found, or incorrect ISBN introduced.");
+        } catch (Exception e) {
+            reportError(e);
+        }
     }
 
     @FXML
@@ -377,7 +432,50 @@ public class LibraryController {
             }
         }
 
-        //if (state == State.)
+        //TODO: creo que hay que añadir aquí tambien State.SEARCHEDBOOKLENDING
+        if (state == State.SEARCHEDBOOKLENDING || state == State.SEARCHEDUSERLENDING) {
+            //TODO: testeo para saber num copias prestadas; MAL - siempre devuelve 0
+            try {
+                if (bookSearchTextField.getLength() > 0) {
+                    BooksJpaEntity book;
+                    String isbn;
+                    int borrowedCopies;
+                    isbn = bookSearchTextField.getText();
+
+                    book = LibraryModel.getBookByIsbn(isbn);
+                    borrowedCopies = LibraryModel.getNumberTotalBorrowedCopies(isbn);
+
+                    if (borrowedCopies >= book.getCopies()) {
+                        //TODO: pasar a mensaje de dialogo después de hacer los test
+                        resultMessage("None of the copies are available at this moment.");
+                        //TODO: give the option to make a Reservation
+
+                        return;
+                    }
+
+                }
+
+                //TESTEAR esta parte mañana
+                if (userSearchTextField.getLength() > 0) {
+                    UsersJpaEntity user;
+                    String code;
+                    int booksAlreadyLended;
+                    code = userCodeTextField.getText();
+                    user = LibraryModel.getUserByCode(code);
+                    booksAlreadyLended = LibraryModel.getUserBooksBorrowedNow(code);
+
+                    if (booksAlreadyLended >= 3) {
+                        resultMessage("The User has already borrowed the maximum number of books (3).");
+                        //TEST: la siguiente línea de cógigo
+                        userResultTextField.setText("No te pasessss");
+
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                reportError(ex);
+            }
+        }
 
     }
 
@@ -388,10 +486,17 @@ public class LibraryController {
             setUpUserUI(State.WAITING);
             //TODO: testear y quitar "clear..." si no interesa en tiempo de ejecución - solución temporal
             clearUserFields();
-        } else if (state == State.SEARCHINGBOOK || state == State.ADDINGBOOK || state == State.EDITINGBOOK ||
+        }
+        else if (state == State.SEARCHINGBOOK || state == State.ADDINGBOOK || state == State.EDITINGBOOK ||
                 state == State.BOOKSEARCHSUCCESS) {
             setUpBookUI(State.WAITING);
             clearBookFields();
+        }
+        else if (state == State.LENDING || state == State.RETURNING || state == State.SEARCHEDBOOKLENDING ||
+                state == State.SEARCHEDBOOKRETURNING || state == State.SEARCHEDUSERLENDING ||
+                state == State.SEARCHEDUSERRETURNING) {
+            setUpLendReturnUI(State.WAITING);
+            clearLendOrReturnFields();
         }
 
     }
@@ -414,13 +519,13 @@ public class LibraryController {
         state = newState;
     }
 
-    public void setUpLendReturnUI () {
+    public void setUpLendReturnUI (State newState) {
         userMiddlePane.setVisible(false);
         bookMiddlePane.setVisible(false);
         lendOrReturnPane.setVisible(true);
         bottomMainPane.setVisible(false);
         bottomAcceptCancelPane.setVisible(true);
-        state = State.WAITING;
+        state = newState;
     }
 
     public void clearUserFields() {
@@ -437,6 +542,14 @@ public class LibraryController {
         bookCopiesTextField.setText("");
         outlineTextField.setText("");
         publisherTextField.setText("");
+        state = State.WAITING;
+    }
+
+    public void clearLendOrReturnFields() {
+        userSearchTextField.setText("");
+        userResultTextField.setText("");
+        bookSearchTextField.setText("");
+        bookResultTextField.setText("");
         state = State.WAITING;
     }
 
@@ -465,4 +578,5 @@ public class LibraryController {
 
         a.show();
     }
+
 }
