@@ -1,5 +1,8 @@
 package com.aajaor2122.unit5;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
@@ -89,7 +92,7 @@ public class BooksJpaEntity {
         return Objects.hash(isbn, title, copies, cover, outline, publisher);
     }
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book", fetch = FetchType.EAGER)
     public Set<LendingJpaEntity> getBorrowedBy() {
         return borrowedBy;
     }
@@ -98,7 +101,7 @@ public class BooksJpaEntity {
         this.borrowedBy = borrowedBy;
     }
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book", fetch = FetchType.EAGER)
     public Set<ReservationsJpaEntity> getReservedBy() {
         return reservedBy;
     }

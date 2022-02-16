@@ -71,6 +71,13 @@ public class LibraryModel {
         return book;
     }
 
+    public static int getNumberTotalBorrowedCopies2(BooksJpaEntity book) {
+        int numBorrowed;
+
+        numBorrowed = book.getBorrowedBy().size();
+        return numBorrowed;
+    }
+
     //CORRECTO: ahora si que funciona
     public static int getNumberTotalBorrowedCopies(String isbn) {
         BooksJpaEntity book = null;

@@ -434,8 +434,9 @@ public class LibraryController {
 
         //TODO: creo que hay que añadir aquí tambien State.SEARCHEDBOOKLENDING
         if (state == State.SEARCHEDBOOKLENDING || state == State.SEARCHEDUSERLENDING) {
-            //TODO: testeo para saber num copias prestadas; MAL - siempre devuelve 0
+            //TODO: lazy error de Hibernate, conseguir poner las listas o Set en modo EAGER
             try {
+                //TODO: checkear que ambos campos están completos con búsquedas, antes de permitir insertar prestamo
                 if (bookSearchTextField.getLength() > 0) {
                     BooksJpaEntity book;
                     String isbn;
@@ -443,14 +444,15 @@ public class LibraryController {
                     isbn = bookSearchTextField.getText();
 
                     book = LibraryModel.getBookByIsbn(isbn);
-                    borrowedCopies = LibraryModel.getNumberTotalBorrowedCopies(isbn);
+                    //borrowedCopies = LibraryModel.getNumberTotalBorrowedCopies2(book);
+                    borrowedCopies = book.getBorrowedBy().size();
 
                     if (borrowedCopies >= book.getCopies()) {
-                        //TODO: pasar a mensaje de dialogo después de hacer los test
                         resultMessage("None of the copies are available at this moment.");
                         //TODO: give the option to make a Reservation
-
                         return;
+                    } else {
+                        resultMessage("Actually lended: " + borrowedCopies);
                     }
 
                 }
@@ -461,7 +463,6 @@ public class LibraryController {
                     String code;
                     int booksAlreadyLended;
                     code = userCodeTextField.getText();
-                    user = LibraryModel.getUserByCode(code);
                     booksAlreadyLended = LibraryModel.getUserBooksBorrowedNow(code);
 
                     if (booksAlreadyLended >= 3) {

@@ -1,11 +1,14 @@
 package com.aajaor2122.unit5;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.Objects;
 
 @Entity
 @Table(name = "lending", schema = "public", catalog = "Libraries")
+@Where(clause = "returning date is null") // Filters lendings to return only the one´s NOT returned yet
 public class LendingJpaEntity {
     private int id;
     private Date lendingdate;
@@ -15,6 +18,8 @@ public class LendingJpaEntity {
 
     @Id
     @Column(name = "id", nullable = false)
+    //TODO: eliminar anotación de GeneratedValue si da problemas - la he incluido tarde en la app
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }

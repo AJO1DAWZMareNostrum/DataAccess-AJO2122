@@ -14,6 +14,7 @@ public class ReservationsJpaEntity {
 
     @Id
     @Column(name = "idreserv", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getIdreserv() {
         return idreserv;
     }

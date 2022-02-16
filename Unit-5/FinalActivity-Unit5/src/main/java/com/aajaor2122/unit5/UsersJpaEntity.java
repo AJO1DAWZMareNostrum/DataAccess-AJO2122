@@ -1,5 +1,8 @@
 package com.aajaor2122.unit5;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.Objects;
@@ -78,6 +81,7 @@ public class UsersJpaEntity {
     }
 
     @OneToMany(mappedBy = "reserver")
+    //@LazyCollection(LazyCollectionOption.FALSE)
     public Set<ReservationsJpaEntity> getReservedBooks() {
         return reservedBooks;
     }
