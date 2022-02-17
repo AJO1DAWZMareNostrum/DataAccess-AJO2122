@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "lending", schema = "public", catalog = "Libraries")
-@Where(clause = "returning date is null") // Filters lendings to return only the one´s NOT returned yet
+@Where(clause = "returningdate is null") // Filters lendings to return only the one´s NOT returned yet
 public class LendingJpaEntity {
     private int id;
     private Date lendingdate;

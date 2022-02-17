@@ -92,7 +92,8 @@ public class BooksJpaEntity {
         return Objects.hash(isbn, title, copies, cover, outline, publisher);
     }
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "book")
+    @LazyCollection(LazyCollectionOption.FALSE)
     public Set<LendingJpaEntity> getBorrowedBy() {
         return borrowedBy;
     }
@@ -101,7 +102,8 @@ public class BooksJpaEntity {
         this.borrowedBy = borrowedBy;
     }
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "book")
+    @LazyCollection(LazyCollectionOption.FALSE)
     public Set<ReservationsJpaEntity> getReservedBy() {
         return reservedBy;
     }

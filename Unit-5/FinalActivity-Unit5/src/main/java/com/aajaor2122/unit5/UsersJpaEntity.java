@@ -72,6 +72,7 @@ public class UsersJpaEntity {
     }
 
     @OneToMany(mappedBy = "borrower")
+    @LazyCollection(LazyCollectionOption.FALSE)
     public Set<LendingJpaEntity> getLentBooks() {
         return lentBooks;
     }
@@ -81,7 +82,7 @@ public class UsersJpaEntity {
     }
 
     @OneToMany(mappedBy = "reserver")
-    //@LazyCollection(LazyCollectionOption.FALSE)
+    @LazyCollection(LazyCollectionOption.FALSE)
     public Set<ReservationsJpaEntity> getReservedBooks() {
         return reservedBooks;
     }

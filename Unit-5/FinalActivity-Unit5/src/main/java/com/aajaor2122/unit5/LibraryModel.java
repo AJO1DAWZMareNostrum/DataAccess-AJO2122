@@ -71,36 +71,6 @@ public class LibraryModel {
         return book;
     }
 
-    public static int getNumberTotalBorrowedCopies2(BooksJpaEntity book) {
-        int numBorrowed;
-
-        numBorrowed = book.getBorrowedBy().size();
-        return numBorrowed;
-    }
-
-    //CORRECTO: ahora si que funciona
-    public static int getNumberTotalBorrowedCopies(String isbn) {
-        BooksJpaEntity book = null;
-        int copiesLendedNow = 0;
-        try (Session session = openSession()) {
-            Query<BooksJpaEntity> booksQuery =
-                    session.createQuery("from com.aajaor2122.unit5.BooksJpaEntity where isbn='" +
-                            String.valueOf(isbn) + "' ");
-            List<BooksJpaEntity> books = booksQuery.list();
-            book = (BooksJpaEntity) books.get(0);
-
-            copiesLendedNow = book.getBorrowedBy().size();
-
-            if (book == null)
-                LibraryController.resultMessage("The ISBN of the book is NOT correct.");
-
-        } catch (Exception e) {
-            LibraryController.reportError(e);
-        }
-
-        return copiesLendedNow;
-    }
-
     //TODO: da un error de ArrayIndexOutOfBoundsException, intentar solucionarlo
     public static int getUserBooksBorrowedNow(String code) {
         UsersJpaEntity user = null;

@@ -240,9 +240,10 @@ public class LibraryController {
                     state = State.SEARCHEDUSERLENDING;
                     bottomMainPane.setVisible(false);
                     bottomAcceptCancelPane.setVisible(true);
-                }
+                } else
+                    resultMessage("User has NOT been found, or incorrect code introduced.");
             } else
-                resultMessage("User has NOT been found, or incorrect code introduced.");
+                resultMessage("You must introduce an user code to be able to make a search.");
         } catch (Exception e) {
             reportError(e);
         }
@@ -265,9 +266,10 @@ public class LibraryController {
                     state = State.SEARCHEDBOOKLENDING;
                     bottomMainPane.setVisible(false);
                     bottomAcceptCancelPane.setVisible(true);
-                }
-            } else
+                } else
                 resultMessage("Book has NOT been found, or incorrect ISBN introduced.");
+            } else
+                resultMessage("You must introduce a book´s ISBN to be able to make a search.");
         } catch (Exception e) {
             reportError(e);
         }
@@ -434,7 +436,6 @@ public class LibraryController {
 
         //TODO: creo que hay que añadir aquí tambien State.SEARCHEDBOOKLENDING
         if (state == State.SEARCHEDBOOKLENDING || state == State.SEARCHEDUSERLENDING) {
-            //TODO: lazy error de Hibernate, conseguir poner las listas o Set en modo EAGER
             try {
                 //TODO: checkear que ambos campos están completos con búsquedas, antes de permitir insertar prestamo
                 if (bookSearchTextField.getLength() > 0) {
@@ -444,7 +445,6 @@ public class LibraryController {
                     isbn = bookSearchTextField.getText();
 
                     book = LibraryModel.getBookByIsbn(isbn);
-                    //borrowedCopies = LibraryModel.getNumberTotalBorrowedCopies2(book);
                     borrowedCopies = book.getBorrowedBy().size();
 
                     if (borrowedCopies >= book.getCopies()) {
@@ -457,20 +457,21 @@ public class LibraryController {
 
                 }
 
-                //TESTEAR esta parte mañana
+                //TESTEAR esta parte mañana - me dice que el user is null, NO ENTIENDO
                 if (userSearchTextField.getLength() > 0) {
                     UsersJpaEntity user;
                     String code;
                     int booksAlreadyLended;
                     code = userCodeTextField.getText();
-                    booksAlreadyLended = LibraryModel.getUserBooksBorrowedNow(code);
+
+                    user = LibraryModel.getUserByCode(code);
+                    booksAlreadyLended = user.getLentBooks().size();
 
                     if (booksAlreadyLended >= 3) {
                         resultMessage("The User has already borrowed the maximum number of books (3).");
-                        //TEST: la siguiente línea de cógigo
-                        userResultTextField.setText("No te pasessss");
-
                         return;
+                    } else {
+                        resultMessage("Books already lended: " + booksAlreadyLended);
                     }
                 }
             } catch (Exception ex) {
