@@ -5,6 +5,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -69,30 +70,6 @@ public class LibraryModel {
         }
 
         return book;
-    }
-
-    //TODO: da un error de ArrayIndexOutOfBoundsException, intentar solucionarlo
-    public static int getUserBooksBorrowedNow(String code) {
-        UsersJpaEntity user = null;
-        int booksBorrowedNow = 0;
-
-        try (Session session = openSession()) {
-            Query<UsersJpaEntity> usersQuery =
-                    session.createQuery("from com.aajaor2122.unit5.UsersJpaEntity where code='" +
-                            String.valueOf(code) + "' ");
-            List<UsersJpaEntity> users = usersQuery.list();
-            user = (UsersJpaEntity) users.get(0);
-
-            booksBorrowedNow = user.getLentBooks().size();
-
-            if (user == null)
-                LibraryController.resultMessage("The code of the User is NOT correct.");
-
-        } catch (Exception e) {
-            LibraryController.reportError(e);
-        }
-
-        return booksBorrowedNow;
     }
 
     public static void insertUser(String code, String name, String surname, Date birthday) {
@@ -170,8 +147,45 @@ public class LibraryModel {
         }
     }
 
-    public static void insertLending() {
+    public static void insertLending(UsersJpaEntity user, BooksJpaEntity book) {
+        // We obtain and convert the date from today, to insert in the register
+        LocalDate todayDateRaw = LocalDate.now();
+        Date today = Date.valueOf(todayDateRaw);
 
+        try (Session session = openSession()) {
+            Transaction transaction = session.beginTransaction();
+            LendingJpaEntity lending = new LendingJpaEntity();
+            lending.setLendingdate(today);
+            lending.setBorrower(user);
+            lending.setBook(book);
+            session.save(lending);
+            transaction.commit();
+
+            LibraryController.resultMessage("The lending has been inserted into the database.");
+        }
+        catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+    }
+
+    public static void insertReservation(UsersJpaEntity user, BooksJpaEntity book) {
+        LocalDate todayDateRaw = LocalDate.now();
+        Date today = Date.valueOf(todayDateRaw);
+
+        try (Session session = openSession()) {
+            Transaction transaction = session.beginTransaction();
+            ReservationsJpaEntity reservation = new ReservationsJpaEntity();
+            reservation.setDate(today);
+            reservation.setBorrower(user);
+            reservation.setBook(book);
+            session.save(reservation);
+            transaction.commit();
+
+            LibraryController.resultMessage("The reservation of this book has been inserted into the database.");
+        }
+        catch (Exception e) {
+            LibraryController.reportError(e);
+        }
     }
 
 }

@@ -11,6 +11,7 @@ import javafx.scene.layout.Pane;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  *  CONTROLLER class - related to every aspect of the graphical interface: controls and set up
@@ -437,8 +438,9 @@ public class LibraryController {
         //TODO: creo que hay que añadir aquí tambien State.SEARCHEDBOOKLENDING
         if (state == State.SEARCHEDBOOKLENDING || state == State.SEARCHEDUSERLENDING) {
             try {
-                //TODO: checkear que ambos campos están completos con búsquedas, antes de permitir insertar prestamo
-                if (bookSearchTextField.getLength() > 0) {
+                if (bookSearchTextField.getLength() > 0 && userSearchTextField.getLength() > 0) {
+
+                    //Restrictions for the book field
                     BooksJpaEntity book;
                     String isbn;
                     int borrowedCopies;
@@ -450,30 +452,48 @@ public class LibraryController {
                     if (borrowedCopies >= book.getCopies()) {
                         resultMessage("None of the copies are available at this moment.");
                         //TODO: give the option to make a Reservation
+                        //TODO: show a dialog box that allow to choose Yes or No to make a reservation
                         return;
-                    } else {
+                    } /*else {
                         resultMessage("Actually lended: " + borrowedCopies);
-                    }
+                    }*/
 
-                }
-
-                //TESTEAR esta parte mañana - me dice que el user is null, NO ENTIENDO
-                if (userSearchTextField.getLength() > 0) {
+                    // Restriction for the user field
                     UsersJpaEntity user;
                     String code;
                     int booksAlreadyLended;
-                    code = userCodeTextField.getText();
+                    code = userSearchTextField.getText();
 
                     user = LibraryModel.getUserByCode(code);
                     booksAlreadyLended = user.getLentBooks().size();
 
+                    // TODO: averiguar si usuario ya tiene libro en su posesión - NO FUNCIONA esta parte, arreglar o eliminar
+                    Set<LendingJpaEntity> userActualBooks = user.getLentBooks();
+                    String ownedBook;
+                    for (LendingJpaEntity lending : userActualBooks) {
+                        ownedBook = lending.getBook().getIsbn();
+
+                        if (ownedBook == isbn) {
+                            resultMessage("User has already borrowed this book. Operation canceled!");
+                        }
+                        return;
+                    }
+
                     if (booksAlreadyLended >= 3) {
                         resultMessage("The User has already borrowed the maximum number of books (3).");
                         return;
-                    } else {
+                    } /*else {
                         resultMessage("Books already lended: " + booksAlreadyLended);
-                    }
+                    }*/
+
+                    // Proceed to insert the new lending into the DB (after checking and passing all the restrictions)
+                    //LibraryModel.insertLending(user, book);
+
+                } else {
+                    System.out.println("You need a succesful search from a valid user as from a valid book, before you " +
+                            "insert a new lending");
                 }
+
             } catch (Exception ex) {
                 reportError(ex);
             }

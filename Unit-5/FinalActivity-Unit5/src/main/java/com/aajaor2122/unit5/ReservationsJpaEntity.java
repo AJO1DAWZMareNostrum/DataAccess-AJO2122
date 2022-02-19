@@ -7,30 +7,30 @@ import java.util.Objects;
 @Entity
 @Table(name = "reservations", schema = "public", catalog = "Libraries")
 public class ReservationsJpaEntity {
-    private int idreserv;
-    private Date reservedate;
-    private UsersJpaEntity reserver;
+    private int id;
+    private Date date;
+    private UsersJpaEntity borrower;
     private BooksJpaEntity book;
 
     @Id
-    @Column(name = "idreserv", nullable = false)
+    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int getIdreserv() {
-        return idreserv;
+    public int getId() {
+        return id;
     }
 
-    public void setIdreserv(int idreserv) {
-        this.idreserv = idreserv;
+    public void setId(int idreserv) {
+        this.id = idreserv;
     }
 
     @Basic
-    @Column(name = "reservedate", nullable = false)
-    public Date getReservedate() {
-        return reservedate;
+    @Column(name = "date", nullable = false)
+    public Date getDate() {
+        return date;
     }
 
-    public void setReservedate(Date reservedate) {
-        this.reservedate = reservedate;
+    public void setDate(Date reservedate) {
+        this.date = reservedate;
     }
 
     @Override
@@ -38,22 +38,22 @@ public class ReservationsJpaEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ReservationsJpaEntity that = (ReservationsJpaEntity) o;
-        return idreserv == that.idreserv && Objects.equals(reservedate, that.reservedate);
+        return id == that.id && Objects.equals(date, that.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idreserv, reservedate);
+        return Objects.hash(id, date);
     }
 
     @ManyToOne
-    @JoinColumn(name = "reserver", referencedColumnName = "code", nullable = false)
-    public UsersJpaEntity getReserver() {
-        return reserver;
+    @JoinColumn(name = "borrower", referencedColumnName = "code", nullable = false)
+    public UsersJpaEntity getBorrower() {
+        return borrower;
     }
 
-    public void setReserver(UsersJpaEntity reserver) {
-        this.reserver = reserver;
+    public void setBorrower(UsersJpaEntity reserver) {
+        this.borrower = reserver;
     }
 
     @ManyToOne
