@@ -18,7 +18,6 @@ public class LendingJpaEntity {
 
     @Id
     @Column(name = "id", nullable = false)
-    //TODO: eliminar anotación de GeneratedValue si da problemas - la he incluido tarde en la app
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;

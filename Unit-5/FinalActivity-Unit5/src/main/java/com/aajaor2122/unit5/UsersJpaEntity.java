@@ -15,6 +15,7 @@ public class UsersJpaEntity {
     private String name;
     private String surname;
     private Date birthdate;
+    private Date fined;
     private Set<LendingJpaEntity> lentBooks;
     private Set<ReservationsJpaEntity> reservedBooks;
 
@@ -56,6 +57,16 @@ public class UsersJpaEntity {
 
     public void setBirthdate(Date birthdate) {
         this.birthdate = birthdate;
+    }
+
+    @Basic
+    @Column(name = "fined", nullable = true)
+    public Date getFined() {
+        return fined;
+    }
+
+    public void setFined(Date fined) {
+        this.fined = fined;
     }
 
     @Override

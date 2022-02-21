@@ -1,16 +1,14 @@
 package com.aajaor2122.unit5;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -96,6 +94,13 @@ public class LibraryController {
         SEARCHEDBOOKRETURNING
     }
     State state = State.WAITING;
+    String lendOrReturn = "";
+
+    // Constant to know the maximum days to return the book; otherwise the user will be FINED
+    final int daysToBeFined = 15;
+    // Today´s date, prepared for making comparisons to manage user´s fined
+    LocalDate todayDateRaw = LocalDate.now();
+    Date today = Date.valueOf(todayDateRaw);
 
     @FXML
     protected void onHelloButtonClick() {
@@ -125,12 +130,14 @@ public class LibraryController {
     @FXML
     protected void onLendBookClicked() {
         setUpLendReturnUI(State.LENDING);
+        lendOrReturn = "lend";
         clearLendOrReturnFields();
     }
 
     @FXML
     protected void onReturnBookClicked() {
         setUpLendReturnUI(State.RETURNING);
+        lendOrReturn = "return";
         clearLendOrReturnFields();
     }
 
@@ -435,67 +442,137 @@ public class LibraryController {
             }
         }
 
-        //TODO: creo que hay que añadir aquí tambien State.SEARCHEDBOOKLENDING
-        if (state == State.SEARCHEDBOOKLENDING || state == State.SEARCHEDUSERLENDING) {
-            try {
-                if (bookSearchTextField.getLength() > 0 && userSearchTextField.getLength() > 0) {
+        // Insertion of new lending into DB if restrictions are passed
+        if (lendOrReturn.equals("lend")) {
+            if (state == State.SEARCHEDBOOKLENDING || state == State.SEARCHEDUSERLENDING) {
+                try {
+                    if (bookSearchTextField.getLength() > 0 && userSearchTextField.getLength() > 0) {
 
-                    //Restrictions for the book field
-                    BooksJpaEntity book;
-                    String isbn;
-                    int borrowedCopies;
-                    isbn = bookSearchTextField.getText();
+                        //Restrictions for the book field
+                        BooksJpaEntity book;
+                        String isbn;
+                        int borrowedCopies;
+                        isbn = bookSearchTextField.getText();
 
-                    book = LibraryModel.getBookByIsbn(isbn);
-                    borrowedCopies = book.getBorrowedBy().size();
+                        book = LibraryModel.getBookByIsbn(isbn);
+                        borrowedCopies = book.getBorrowedBy().size();
 
-                    if (borrowedCopies >= book.getCopies()) {
-                        resultMessage("None of the copies are available at this moment.");
-                        //TODO: give the option to make a Reservation
-                        //TODO: show a dialog box that allow to choose Yes or No to make a reservation
-                        return;
-                    } /*else {
-                        resultMessage("Actually lended: " + borrowedCopies);
-                    }*/
+                        // Restriction for the user field
+                        UsersJpaEntity user;
+                        String code;
+                        int booksAlreadyLended;
+                        code = userSearchTextField.getText();
 
-                    // Restriction for the user field
-                    UsersJpaEntity user;
-                    String code;
-                    int booksAlreadyLended;
-                    code = userSearchTextField.getText();
+                        user = LibraryModel.getUserByCode(code);
+                        booksAlreadyLended = user.getLentBooks().size();
 
-                    user = LibraryModel.getUserByCode(code);
-                    booksAlreadyLended = user.getLentBooks().size();
+                        // Check if user has already the book in its possession
+                        Set<LendingJpaEntity> userActualBooks = user.getLentBooks();
+                        String ownedBook;
+                        for (LendingJpaEntity lending : userActualBooks) {
+                            ownedBook = lending.getBook().getIsbn();
 
-                    // TODO: averiguar si usuario ya tiene libro en su posesión - NO FUNCIONA esta parte, arreglar o eliminar
-                    Set<LendingJpaEntity> userActualBooks = user.getLentBooks();
-                    String ownedBook;
-                    for (LendingJpaEntity lending : userActualBooks) {
-                        ownedBook = lending.getBook().getIsbn();
-
-                        if (ownedBook == isbn) {
-                            resultMessage("User has already borrowed this book. Operation canceled!");
+                            if (ownedBook.equals(isbn)) {
+                                resultMessage("User has already borrowed this book. Operation canceled!");
+                                return;
+                            }
                         }
-                        return;
+
+                        // Checks that book is available, and in case is NOT, gives the option to make a reservation
+                        if (borrowedCopies >= book.getCopies()) {
+                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                            alert.setTitle("Reservation option");
+                            alert.setContentText("None of the copies are available at this moment. " +
+                                    "Do you wish to register a reservation for this book and user?");
+                            // Capture the dialog result for Ok or Cancel
+                            Optional<ButtonType> result = alert.showAndWait();
+                            if (result.get() == ButtonType.OK) {
+                                LibraryModel.insertReservation(user, book);
+                                resultMessage("Reservation has been registered successfully.");
+                            } else {
+                                alert.close();
+                                resultMessage("Reservation has been canceled.");
+                            }
+
+                            return;
+                        }
+
+                        // Checking that user hasn´t already 3 books, and canceling lending in that case
+                        if (booksAlreadyLended >= 3) {
+                            resultMessage("The User has already borrowed the maximum number of books (3).");
+                            return;
+                        }
+
+                        // Checks that the user isn´t fined at this moment - in that case, cancels the lending
+                        if (user.getFined() != null) {
+                            Date finedDate = user.getFined();
+                            // Compare today´s date to the fined day, to know if fine is over or not
+                            int result = finedDate.compareTo(today);
+                            // If the fined dated havent passed yet (User is STILL fined)
+                            // TODO: check that restriction is working
+                            if (result > 0) {
+                                resultMessage("User is fined until date " + finedDate + ". Operation canceled.");
+                                return;
+                            } else {
+                                //TODO: make a query in LibraryModel to update User´s fined date to NULL
+                                LibraryModel.updateFinedToNull(code);
+                                resultMessage("Fined user restriction is over. Welcome again.");
+                            }
+                        } else {
+                            resultMessage("User´s fined date is NULL.");
+                        }
+
+                        // Proceed to insert the new lending into the DB (after checking and passing all the restrictions)
+                        LibraryModel.insertLending(user, book);
+
+                    } else {
+                        resultMessage("You need a succesful search from a valid user as from a valid book, before you " +
+                                "insert a new lending");
                     }
 
-                    if (booksAlreadyLended >= 3) {
-                        resultMessage("The User has already borrowed the maximum number of books (3).");
-                        return;
-                    } /*else {
-                        resultMessage("Books already lended: " + booksAlreadyLended);
-                    }*/
-
-                    // Proceed to insert the new lending into the DB (after checking and passing all the restrictions)
-                    //LibraryModel.insertLending(user, book);
-
-                } else {
-                    System.out.println("You need a succesful search from a valid user as from a valid book, before you " +
-                            "insert a new lending");
+                } catch (Exception ex) {
+                    reportError(ex);
                 }
+            }
+        }
 
-            } catch (Exception ex) {
-                reportError(ex);
+        // Devolution or return of a book into DB and checking of restrictions and Reservations (to show message to user)
+        if (lendOrReturn.equals("return")) {
+            if (state == State.SEARCHEDBOOKLENDING || state == State.SEARCHEDUSERLENDING) {
+                try {
+                    if (bookSearchTextField.getLength() > 0 && userSearchTextField.getLength() > 0) {
+
+                        BooksJpaEntity book;
+                        String isbn;
+                        isbn = bookSearchTextField.getText();
+                        book = LibraryModel.getBookByIsbn(isbn);
+
+                        UsersJpaEntity user;
+                        String code;
+                        code = userSearchTextField.getText();
+                        user = LibraryModel.getUserByCode(code);
+
+                        // Check if user has already the book in its possession, to allow or not the returning
+                        Set<LendingJpaEntity> userActualBooks = user.getLentBooks();
+                        String ownedBook;
+                        for (LendingJpaEntity lending : userActualBooks) {
+                            ownedBook = lending.getBook().getIsbn();
+
+                            if (!ownedBook.equals(isbn)) {
+                                resultMessage("User doesn´t have this book at the moment. Operation canceled!");
+                                return;
+                            }
+                        }
+
+
+
+                    } else {
+                        resultMessage("You need a succesful search from a valid user as from a valid book, before you " +
+                                "insert a new lending");
+                    }
+                } catch (Exception ex) {
+                    reportError(ex);
+                }
             }
         }
 

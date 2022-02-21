@@ -22,6 +22,7 @@ public class LibraryModel {
         SessionFactory sessionFactory = new
                 Configuration().configure().buildSessionFactory();
         Session session = null;
+        
         try {
             session = sessionFactory.openSession();
         } catch (Exception ex) {
@@ -185,6 +186,29 @@ public class LibraryModel {
         }
         catch (Exception e) {
             LibraryController.reportError(e);
+        }
+    }
+
+    // Method that allows to update Lending table, after returning a book to the Library
+    public static void returnBook(UsersJpaEntity user, BooksJpaEntity book) {
+
+    }
+
+
+    public static void updateFinedToNull(String userCode) {
+        try (Session session = openSession()) {
+            Query<UsersJpaEntity> userQuery =
+                    session.createQuery("from com.aajaor2122.unit5.UsersJpaEntity where code='" +
+                            String.valueOf(userCode) + "' ");
+            List<UsersJpaEntity> users = userQuery.list();
+            Transaction transaction = session.beginTransaction();
+            UsersJpaEntity user = (UsersJpaEntity) users.get(0);
+            user.setFined(null);
+            session.update(user);
+            transaction.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
