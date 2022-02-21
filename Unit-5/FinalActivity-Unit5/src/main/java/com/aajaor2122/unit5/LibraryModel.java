@@ -190,8 +190,44 @@ public class LibraryModel {
     }
 
     // Method that allows to update Lending table, after returning a book to the Library
-    public static void returnBook(UsersJpaEntity user, BooksJpaEntity book) {
+    //TODO: TESTEAR SI FUNCIONA O NO
+    public static LendingJpaEntity returnBook(UsersJpaEntity user, BooksJpaEntity book) {
+        LendingJpaEntity lendingToUpdate = null;
+        try (Session session = openSession()) {
+            Query<LendingJpaEntity> lendingQuery =
+                    session.createQuery("from com.aajaor2122.unit5.LendingJpaEntity");
+            List<LendingJpaEntity> lendings = lendingQuery.list();
+            Transaction transaction = session.beginTransaction();
 
+            for (Object lendObject: lendings) {
+                LendingJpaEntity lending = (LendingJpaEntity) lendObject;
+                UsersJpaEntity lendingUser = lending.getBorrower();
+                BooksJpaEntity lendingBook = lending.getBook();
+
+                if (lendingUser.equals(user) && lendingBook.equals(book)) {
+                    lendingToUpdate = lending;
+                }
+            }
+
+            if (lendingToUpdate == null) {
+                LibraryController.resultMessage("This lending data is incorrect or doesn´t match. Try again.");
+                return null;
+            }
+
+            LocalDate todayDateRaw = LocalDate.now();
+            Date today = Date.valueOf(todayDateRaw);
+
+            // We update the lending, with the actual date assigned to "returning date" field
+            lendingToUpdate.setReturningdate(today);
+            session.update(lendingToUpdate);
+            transaction.commit();
+            LibraryController.resultMessage("Book returned. Lending updated successfully.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lendingToUpdate;
     }
 
 
@@ -204,6 +240,24 @@ public class LibraryModel {
             Transaction transaction = session.beginTransaction();
             UsersJpaEntity user = (UsersJpaEntity) users.get(0);
             user.setFined(null);
+            session.update(user);
+            transaction.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // We update the 'fined' field to the user, passing the calculated date by parameter
+    public static void applyFineIntoUser(String userCode, Date finedDate) {
+        try (Session session = openSession()) {
+            Query<UsersJpaEntity> userQuery =
+                    session.createQuery("from com.aajaor2122.unit5.UsersJpaEntity where code='" +
+                            String.valueOf(userCode) + "' ");
+            List<UsersJpaEntity> users = userQuery.list();
+            Transaction transaction = session.beginTransaction();
+            UsersJpaEntity user = (UsersJpaEntity) users.get(0);
+            user.setFined(finedDate);
             session.update(user);
             transaction.commit();
 

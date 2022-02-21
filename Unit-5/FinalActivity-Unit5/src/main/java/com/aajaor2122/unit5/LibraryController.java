@@ -8,6 +8,7 @@ import javafx.scene.layout.Pane;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Optional;
 import java.util.Set;
 
@@ -98,6 +99,7 @@ public class LibraryController {
 
     // Constant to know the maximum days to return the book; otherwise the user will be FINED
     final int daysToBeFined = 15;
+    final int penalisationDays = 10;
     // Today´s date, prepared for making comparisons to manage user´s fined
     LocalDate todayDateRaw = LocalDate.now();
     Date today = Date.valueOf(todayDateRaw);
@@ -508,7 +510,7 @@ public class LibraryController {
                             Date finedDate = user.getFined();
                             // Compare today´s date to the fined day, to know if fine is over or not
                             int result = finedDate.compareTo(today);
-                            // If the fined dated havent passed yet (User is STILL fined)
+                            // If the fined dated haven´t passed yet (User is STILL fined)
                             // TODO: check that restriction is working
                             if (result > 0) {
                                 resultMessage("User is fined until date " + finedDate + ". Operation canceled.");
@@ -564,7 +566,35 @@ public class LibraryController {
                             }
                         }
 
+                        LendingJpaEntity lendingToUpdate = null;
+                        // Lending instance is updated to register the devolution of the book
+                        //TODO: QUITAR COMENTARIOS después de testear las condiciones
+                        lendingToUpdate = LibraryModel.returnBook(user, book);
 
+                        if (lendingToUpdate != null) {
+                            // Checks that the user has returned the book inside of the allowed days; fine him if he exceeds the
+                            // maximum returning date (15 days)
+                            Date lendingDate = lendingToUpdate.getLendingdate();
+                            java.sql.Date maximumDate = addDays(lendingDate, daysToBeFined);
+
+                            LocalDate todayDateRaw = LocalDate.now();
+                            Date today = Date.valueOf(todayDateRaw);
+
+                            int result = maximumDate.compareTo(today);
+                            // If the maximum date has been surpassed, user is fined
+                            if (result < 0) {
+                                //TODO: testeo, implementar metodo que actualice multa al usuario
+                                resultMessage("User has been fined. He isn´t allowed to borrow more books until 10 days have passed from now.");
+                                java.sql.Date newFinedDate = addDays(today, penalisationDays);
+
+                                LibraryModel.applyFineIntoUser(code, newFinedDate);
+                            }
+
+                        }
+
+                        //TODO: avisar de que libro está disponible a bibliotecario, si hay alguna reserva del mismo
+                        // Avisar de la Reservation más antigua (la priera de la lista asignada a ese ISBN),
+                        // y luego eliminarla de la tabla Reservations
 
                     } else {
                         resultMessage("You need a succesful search from a valid user as from a valid book, before you " +
@@ -578,12 +608,18 @@ public class LibraryController {
 
     }
 
+    public static Date addDays(Date date, int days) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, days);
+        return new Date(c.getTimeInMillis());
+    }
+
     @FXML
     protected void onCancelClicked() {
         if (state == State.SEARCHINGUSER || state == State.ADDINGUSER || state == State.EDITINGUSER ||
             state == State.USERSEARCHSUCCESS) {
             setUpUserUI(State.WAITING);
-            //TODO: testear y quitar "clear..." si no interesa en tiempo de ejecución - solución temporal
             clearUserFields();
         }
         else if (state == State.SEARCHINGBOOK || state == State.ADDINGBOOK || state == State.EDITINGBOOK ||
