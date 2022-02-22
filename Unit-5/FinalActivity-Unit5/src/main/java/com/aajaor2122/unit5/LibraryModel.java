@@ -190,7 +190,6 @@ public class LibraryModel {
     }
 
     // Method that allows to update Lending table, after returning a book to the Library
-    //TODO: TESTEAR SI FUNCIONA O NO
     public static LendingJpaEntity returnBook(UsersJpaEntity user, BooksJpaEntity book) {
         LendingJpaEntity lendingToUpdate = null;
         try (Session session = openSession()) {
@@ -264,6 +263,54 @@ public class LibraryModel {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // Checks the first reserve registered in the DB, if exists, of the returned book
+    public static ReservationsJpaEntity isBookReserved(BooksJpaEntity book) {
+        ReservationsJpaEntity reservationSearched = null;
+        try (Session session = openSession()) {
+            Query<ReservationsJpaEntity> reservationsQuery =
+                    session.createQuery("from com.aajaor2122.unit5.ReservationsJpaEntity");
+            List<ReservationsJpaEntity> reservations = reservationsQuery.list();
+
+            int flag = 0;
+            for (Object reservObject: reservations) {
+                ReservationsJpaEntity reservation = (ReservationsJpaEntity) reservObject;
+                BooksJpaEntity reservedBook = reservation.getBook();
+
+                if (reservedBook.equals(book) && flag == 0) {
+                    reservationSearched = reservation;
+                    flag += 1;
+                }
+            }
+
+        } catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+
+        return reservationSearched;
+    }
+
+    public static void deleteReservation(int reservId) {
+        try (Session session = openSession()) {
+            // We obtain the employee instance to be deleted
+            Query<ReservationsJpaEntity> reservationsQuery =
+                    session.createQuery("from com.aajaor2122.unit5.ReservationsJpaEntity where id='" +
+                            reservId + "' ");
+            List<ReservationsJpaEntity> reservations = reservationsQuery.list();
+            ReservationsJpaEntity deletedReserv = reservations.get(0);
+
+            // The reservation is deleted after having alerted the library worker
+            if (deletedReserv != null) {
+                Transaction transaction = session.beginTransaction();
+                session.delete(deletedReserv);
+                transaction.commit();
+            }
+
+        } catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+
     }
 
 }

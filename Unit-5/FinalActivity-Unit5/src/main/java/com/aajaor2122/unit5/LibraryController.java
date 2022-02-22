@@ -73,9 +73,6 @@ public class LibraryController {
     @FXML
     private ImageView cancelImage;
 
-    // Variable to save the state of the program at different times
-    // TODO: CAMBIAR estados al momento de CANCELAR las operaciones y volver a pantalla anterior
-    //private String state = "waiting";
     // ENUM to allocate all the possible states of the application at different times
     enum State {
         WAITING,
@@ -128,7 +125,6 @@ public class LibraryController {
         clearBookFields();
     }
 
-    // TODO: he cambiado los estados, pasar a State.WAITING si esto da errores
     @FXML
     protected void onLendBookClicked() {
         setUpLendReturnUI(State.LENDING);
@@ -151,7 +147,6 @@ public class LibraryController {
     @FXML
     protected void onSearchButtonClicked() {
 
-        // Correcto: testeado y funciona
         if (userMiddlePane.isVisible()) {
             // We update the state of the application
             state = State.SEARCHINGUSER;
@@ -262,7 +257,6 @@ public class LibraryController {
     @FXML
     protected void onSearchBookClicked() {
         try {
-            //TODO: bloque de código CORRECTO, no borrar
             String isbn, title;
             BooksJpaEntity book;
             if (bookSearchTextField.getLength() > 0) {
@@ -288,7 +282,6 @@ public class LibraryController {
     @FXML
     protected void onAcceptClicked() {
         // Important method, that makes the link with the LibraryModel class, calling its DB methods
-        // TODO - Convert these if´s into a Switch expression
 
         // Option selected for searching user in the database
         if (state == State.SEARCHINGUSER) {
@@ -304,7 +297,6 @@ public class LibraryController {
                         surnameTextField.setText(user.getSurname());
                         setUpUserUI(State.USERSEARCHSUCCESS);
                     } else {
-                        //TODO: este mensaje NO llega a mostrarse - arreglar la gestión de excepciones
                         resultMessage("User has NOT been found, or incorrect code introduced.");
                     }
                 } else
@@ -330,7 +322,6 @@ public class LibraryController {
                         publisherTextField.setText(book.getPublisher());
                         setUpBookUI(State.BOOKSEARCHSUCCESS);
                     } else {
-                        //TODO: este mensaje NO llega a mostrarse - arreglar la gestión de excepciones
                         resultMessage("Book has NOT been found, or incorrect isbn introduced.");
                     }
                 } else
@@ -343,7 +334,6 @@ public class LibraryController {
         // Option selected for adding a user into the database
         if (state == State.ADDINGUSER) {
             try {
-                //TODO: check that the DatePicker restriction is working
                 if (userCodeTextField.getLength() > 0 && fnameTextField.getLength() > 0 &&
                     surnameTextField.getLength() > 0 && birthdayDatePicker.getValue() != null) {
 
@@ -511,12 +501,10 @@ public class LibraryController {
                             // Compare today´s date to the fined day, to know if fine is over or not
                             int result = finedDate.compareTo(today);
                             // If the fined dated haven´t passed yet (User is STILL fined)
-                            // TODO: check that restriction is working
                             if (result > 0) {
                                 resultMessage("User is fined until date " + finedDate + ". Operation canceled.");
                                 return;
                             } else {
-                                //TODO: make a query in LibraryModel to update User´s fined date to NULL
                                 LibraryModel.updateFinedToNull(code);
                                 resultMessage("Fined user restriction is over. Welcome again.");
                             }
@@ -568,7 +556,6 @@ public class LibraryController {
 
                         LendingJpaEntity lendingToUpdate = null;
                         // Lending instance is updated to register the devolution of the book
-                        //TODO: QUITAR COMENTARIOS después de testear las condiciones
                         lendingToUpdate = LibraryModel.returnBook(user, book);
 
                         if (lendingToUpdate != null) {
@@ -583,7 +570,6 @@ public class LibraryController {
                             int result = maximumDate.compareTo(today);
                             // If the maximum date has been surpassed, user is fined
                             if (result < 0) {
-                                //TODO: testeo, implementar metodo que actualice multa al usuario
                                 resultMessage("User has been fined. He isn´t allowed to borrow more books until 10 days have passed from now.");
                                 java.sql.Date newFinedDate = addDays(today, penalisationDays);
 
@@ -592,9 +578,21 @@ public class LibraryController {
 
                         }
 
-                        //TODO: avisar de que libro está disponible a bibliotecario, si hay alguna reserva del mismo
-                        // Avisar de la Reservation más antigua (la priera de la lista asignada a ese ISBN),
-                        // y luego eliminarla de la tabla Reservations
+                        // To alert to library worker from the first Reservation available in DB about this book
+                        ReservationsJpaEntity reserved = null;
+                        reserved = LibraryModel.isBookReserved(book);
+                        if (reserved != null) {
+                            String reserverName = reserved.getBorrower().getName() + " " + reserved.getBorrower().getSurname();
+                            Date reservationDate = reserved.getDate();
+
+                            resultMessage("This book has a reservation by " + reserverName + " since the date " +
+                                    reservationDate);
+
+                            int reservationId = reserved.getId();
+                            // Delete the Reservation from the DB after having alerted to the library worker
+                            LibraryModel.deleteReservation(reservationId);
+                        }
+
 
                     } else {
                         resultMessage("You need a succesful search from a valid user as from a valid book, before you " +
