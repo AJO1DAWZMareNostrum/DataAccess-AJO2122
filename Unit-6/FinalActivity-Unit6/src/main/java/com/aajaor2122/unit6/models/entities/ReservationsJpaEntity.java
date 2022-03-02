@@ -1,6 +1,8 @@
 package com.aajaor2122.unit6.models.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.sql.Date;
 
 @Entity
@@ -13,6 +15,7 @@ public class ReservationsJpaEntity {
 
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public int getId() {
         return id;
     }
@@ -32,7 +35,8 @@ public class ReservationsJpaEntity {
     }
 
     @Basic
-    @Column(name = "book", nullable = false, length = -1)
+    @NotEmpty(message = "The book isbn cannot be empty.")
+    @Column(name = "book", nullable = false)
     public String getBook() {
         return book;
     }
@@ -42,7 +46,8 @@ public class ReservationsJpaEntity {
     }
 
     @Basic
-    @Column(name = "borrower", nullable = false, length = -1)
+    @NotEmpty(message = "The borrower´s code needs to be provided.")
+    @Column(name = "borrower", nullable = false)
     public String getBorrower() {
         return borrower;
     }

@@ -38,4 +38,15 @@ public class ReservationsController {
         return reservationDAO.save(reservation);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteReservation(@PathVariable(value = "id") int id) {
+        Optional<ReservationsJpaEntity> reservation = reservationDAO.findById(id);
+        if (reservation.isPresent()) {
+            reservationDAO.deleteById(id);
+            return ResponseEntity.ok().body("Deleted");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

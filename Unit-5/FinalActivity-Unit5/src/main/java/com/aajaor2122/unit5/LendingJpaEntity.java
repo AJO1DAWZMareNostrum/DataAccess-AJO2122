@@ -18,7 +18,8 @@ public class LendingJpaEntity {
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // He cambiado tipo de strategia de IDENTITY a AUTO
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public int getId() {
         return id;
     }

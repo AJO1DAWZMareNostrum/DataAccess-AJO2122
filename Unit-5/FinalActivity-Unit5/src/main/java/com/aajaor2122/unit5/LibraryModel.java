@@ -4,11 +4,19 @@ import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class LibraryModel {
 
@@ -169,7 +177,7 @@ public class LibraryModel {
         }
     }
 
-    public static void insertReservation(UsersJpaEntity user, BooksJpaEntity book) {
+    /*public static void insertReservation(UsersJpaEntity user, BooksJpaEntity book) {
         LocalDate todayDateRaw = LocalDate.now();
         Date today = Date.valueOf(todayDateRaw);
 
@@ -187,6 +195,45 @@ public class LibraryModel {
         catch (Exception e) {
             LibraryController.reportError(e);
         }
+    }*/
+
+    //TODO: realizar testeos con los métodos de Spring (POST y DELETE hacia Reservations)
+    public static void insertReservation(String userCode, String isbn) throws JSONException {
+        LocalDate todayDateRaw = LocalDate.now();
+        String today = todayDateRaw.toString();
+
+        HttpURLConnection conn = null;
+        String jsonReservationString = new JSONObject()
+                                    .put("date", today)
+                                    .put("book", isbn)
+                                    .put("borrower", userCode)
+                                    .toString();
+
+        try {
+            URL url = new URL("http://localhost:8080/api-rest-aajaor2122/Reservations");
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonReservationString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            if (conn.getResponseCode() == 200)
+                LibraryController.resultMessage("Reservation inserted into the database.");
+            else
+                LibraryController.resultMessage("Connection with server failed. Reservation NOT inserted.");
+
+        } catch (Exception e) {
+            LibraryController.reportError(e);
+        } finally {
+            if (conn != null)
+                conn.disconnect();
+        }
+
     }
 
     // Method that allows to update Lending table, after returning a book to the Library
@@ -291,7 +338,7 @@ public class LibraryModel {
         return reservationSearched;
     }
 
-    public static void deleteReservation(int reservId) {
+    /*public static void deleteReservation(int reservId) {
         try (Session session = openSession()) {
             // We obtain the employee instance to be deleted
             Query<ReservationsJpaEntity> reservationsQuery =
@@ -310,7 +357,30 @@ public class LibraryModel {
         } catch (Exception e) {
             LibraryController.reportError(e);
         }
+    }*/
 
-    }
+    public static void deleteReservation(int reservId) {
+
+        HttpURLConnection conn = null;
+
+        try {
+            URL url = new URL("http://localhost:8080/api-rest-aajaor2122/Reservations" + reservId);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("DELETE");
+
+            if (conn.getResponseCode() == 200)
+                LibraryController.resultMessage("The reservation has been deleted.");
+            else
+                LibraryController.resultMessage("Connection with server failed. Reservation NOT deleted correctly");
+
+        }  catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+        finally {
+            if (conn != null)
+                conn.disconnect();
+        }
+
+}
 
 }

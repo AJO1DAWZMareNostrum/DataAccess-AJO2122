@@ -7,6 +7,7 @@ module com.aajaor2122.unit5 {
     requires java.sql;
     requires org.hibernate.orm.core;
     requires org.jboss.logging;
+    requires android.json;
 
 
     exports com.aajaor2122.unit5;

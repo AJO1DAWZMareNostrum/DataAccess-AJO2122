@@ -479,7 +479,8 @@ public class LibraryController {
                             // Capture the dialog result for Ok or Cancel
                             Optional<ButtonType> result = alert.showAndWait();
                             if (result.get() == ButtonType.OK) {
-                                LibraryModel.insertReservation(user, book);
+                                //TODO: convertir Insert a Spring (en un Post)
+                                LibraryModel.insertReservation(code, isbn);
                                 resultMessage("Reservation has been registered successfully.");
                             } else {
                                 alert.close();
@@ -590,6 +591,7 @@ public class LibraryController {
 
                             int reservationId = reserved.getId();
                             // Delete the Reservation from the DB after having alerted to the library worker
+                            //TODO: convertir el Delete en Spring
                             LibraryModel.deleteReservation(reservationId);
                         }
 
