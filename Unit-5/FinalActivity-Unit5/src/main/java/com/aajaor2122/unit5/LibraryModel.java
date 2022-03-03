@@ -364,7 +364,7 @@ public class LibraryModel {
         HttpURLConnection conn = null;
 
         try {
-            URL url = new URL("http://localhost:8080/api-rest-aajaor2122/Reservations" + reservId);
+            URL url = new URL("http://localhost:8080/api-rest-aajaor2122/Reservations/" + reservId);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("DELETE");
 
