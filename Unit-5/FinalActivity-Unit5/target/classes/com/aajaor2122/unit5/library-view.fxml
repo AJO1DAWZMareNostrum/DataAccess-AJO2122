@@ -227,9 +227,10 @@
             </GridPane>
             <GridPane fx:id="bottomMainPane" prefHeight="73.0" prefWidth="416.0" style="-fx-background-color: #0095dd;">
               <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="141.0" minWidth="10.0" prefWidth="101.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="152.0" minWidth="10.0" prefWidth="107.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="169.0" minWidth="10.0" prefWidth="103.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="169.0" minWidth="10.0" prefWidth="106.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -248,6 +249,11 @@
                   <ImageView fx:id="editImage" fitHeight="65.0" fitWidth="67.0" onMouseClicked="#onEditButtonClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="2" GridPane.halignment="CENTER">
                      <image>
                         <Image url="@editRound_104762.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="deleteImage" fitHeight="75.0" fitWidth="111.0" onMouseClicked="#onDeleteButtonClicked" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="3" GridPane.halignment="CENTER">
+                     <image>
+                        <Image url="@close_cross_delete_remove_icon_134659.png" />
                      </image>
                   </ImageView>
                </children>
