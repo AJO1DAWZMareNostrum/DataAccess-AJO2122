@@ -72,6 +72,8 @@ public class LibraryController {
     private ImageView acceptImage;
     @FXML
     private ImageView cancelImage;
+    @FXML
+    private ImageView deleteImage;
 
     // ENUM to allocate all the possible states of the application at different times
     enum State {
@@ -82,6 +84,8 @@ public class LibraryController {
         ADDINGBOOK,
         EDITINGUSER,
         EDITINGBOOK,
+        DELETINGUSER,
+        DELETINGBOOK,
         USERSEARCHSUCCESS,
         BOOKSEARCHSUCCESS,
         LENDING,
@@ -227,6 +231,33 @@ public class LibraryController {
         bottomMainPane.setVisible(false);
         bottomAcceptCancelPane.setVisible(true);
 
+    }
+
+    @FXML
+    protected void onDeleteButtonClicked() {
+
+        if (state != State.USERSEARCHSUCCESS && state != State.BOOKSEARCHSUCCESS) {
+            resultMessage("You need to make a successful search first, before you´re allowed to delete data");
+            return;
+        }
+
+        if (state == State.USERSEARCHSUCCESS) {
+            state = State.DELETINGUSER;
+
+            fnameTextField.setDisable(false);
+            surnameTextField.setDisable(false);
+            birthdayDatePicker.setDisable(false);
+        } else {
+            state = State.DELETINGBOOK;
+
+            titleTextField.setDisable(false);
+            bookCopiesTextField.setDisable(false);
+            outlineTextField.setDisable(false);
+            publisherTextField.setDisable(false);
+        }
+
+        bottomMainPane.setVisible(false);
+        bottomAcceptCancelPane.setVisible(true);
     }
 
     @FXML
@@ -429,6 +460,75 @@ public class LibraryController {
                     setUpBookUI(State.WAITING);
                     clearBookFields();
                 }
+            } catch (Exception ex) {
+                reportError(ex);
+            }
+        }
+
+        if (state == State.DELETINGUSER) {
+                try {
+                    String userCode;
+                    UsersJpaEntity user;
+
+                    if (userCodeTextField.getLength() > 0) {
+                        userCode = userCodeTextField.getText();
+                        user = LibraryModel.getUserByCode(userCode);
+
+                        if (user.getLentBooks().size() > 0 || user.getReservedBooks().size() > 0) {
+                            resultMessage("The user CANNOT be deleted: he has some lending/reserve inserted into the DB.");
+                            return;
+                        }
+
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Delete option");
+                        alert.setContentText("Are you sure that you want to delete this User?");
+                        // Capture the dialog result for Ok or Cancel
+                        Optional<ButtonType> result = alert.showAndWait();
+                        if (result.get() == ButtonType.OK) {
+                            //TODO: Eliminar usuario mediante Hibernate
+                            LibraryModel.deleteUser(userCode);
+                        } else {
+                            alert.close();
+                            resultMessage("User deleting process has been canceled.");
+                        }
+                    } else {
+                        resultMessage("A valid user must be introduced before delete operation.");
+                    }
+
+                } catch (Exception ex) {
+                    reportError(ex);
+                }
+        }
+
+        if (state == State.DELETINGBOOK) {
+            try {
+                String bookISBN;
+                BooksJpaEntity book;
+                if (isbnTextField.getLength() > 0) {
+                    bookISBN = isbnTextField.getText();
+                    book = LibraryModel.getBookByIsbn(bookISBN);
+
+                    if (book.getBorrowedBy().size() > 0 ||  book.getReservedBy().size() > 0) {
+                        resultMessage("The Book CANNOT be deleted: he has some lending/reserve inserted into the DB.");
+                        return;
+                    }
+
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Delete option");
+                    alert.setContentText("Are you sure that you want to delete this User?");
+                    // Capture the dialog result for Ok or Cancel
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK) {
+                        //TODO: Eliminar Book mediante Spring
+                        LibraryModel.deleteBook(bookISBN);
+                    } else {
+                        alert.close();
+                        resultMessage("Book deleting process has been canceled.");
+                    }
+                } else {
+                    resultMessage("A valid user must be introduced before delete operation.");
+                }
+
             } catch (Exception ex) {
                 reportError(ex);
             }

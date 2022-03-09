@@ -381,6 +381,46 @@ public class LibraryModel {
                 conn.disconnect();
         }
 
-}
+    }
 
+    public static void deleteUser(String userCode) {
+
+        try (Session session = openSession()) {
+            Query<UsersJpaEntity> usersQuery =
+                    session.createQuery("from com.aajaor2122.unit5.UsersJpaEntity where code='" +
+                            String.valueOf(userCode) + "' ");
+            List<UsersJpaEntity> users = usersQuery.list();
+            Transaction transaction = session.beginTransaction();
+            UsersJpaEntity user = (UsersJpaEntity) users.get(0);
+            session.delete(user);
+            transaction.commit();
+
+            LibraryController.resultMessage("The User has been deleted successfully.");
+        } catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+    }
+
+    public static void deleteBook(String isbn) {
+
+        HttpURLConnection conn = null;
+
+        try {
+            URL url = new URL("http://localhost:8080/api-rest-aajaor2122/Books/" + isbn);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("DELETE");
+
+            if (conn.getResponseCode() == 200)
+                LibraryController.resultMessage("The book has been deleted.");
+            else
+                LibraryController.resultMessage("Connection with server failed. Book NOT deleted correctly");
+
+        }  catch (Exception e) {
+            LibraryController.reportError(e);
+        }
+        finally {
+            if (conn != null)
+                conn.disconnect();
+        }
+    }
 }
